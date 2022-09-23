@@ -3,7 +3,7 @@ name: version-tests
 on: [push]
 
 jobs:
-  build:
+  version-tests:
 
     runs-on: ubuntu-latest
     strategy:
