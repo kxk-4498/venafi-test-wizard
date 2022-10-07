@@ -10,3 +10,4 @@ docker build --target dev . -t go
 docker run -it -v ${PWD}:/venafi go sh
 go version
 ```
+TO-DO: give documentation on how to use the issuer
