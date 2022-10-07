@@ -1,0 +1,59 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - certmanager.chaos.ch
+  resources:
+  - chaosclusterissuers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - certmanager.chaos.ch
+  resources:
+  - chaosclusterissuers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - certmanager.chaos.ch
+  resources:
+  - chaosclusterissuers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - certmanager.chaos.ch
+  resources:
+  - chaosissuers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - certmanager.chaos.ch
+  resources:
+  - chaosissuers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - certmanager.chaos.ch
+  resources:
+  - chaosissuers/status
+  verbs:
+  - get
+  - patch
+  - update
