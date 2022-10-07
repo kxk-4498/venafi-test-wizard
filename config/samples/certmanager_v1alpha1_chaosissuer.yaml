@@ -1,0 +1,12 @@
+apiVersion: certmanager.chaos.ch/v1alpha1
+kind: ChaosIssuer
+metadata:
+  labels:
+    app.kubernetes.io/name: chaosissuer
+    app.kubernetes.io/instance: chaosissuer-sample
+    app.kubernetes.io/part-of: venafi-test-wizard
+    app.kuberentes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: venafi-test-wizard
+  name: chaosissuer-sample
+spec:
+  # TODO(user): Add fields here

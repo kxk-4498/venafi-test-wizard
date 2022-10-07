@@ -1,0 +1,24 @@
+domain: chaos.ch
+layout:
+- go.kubebuilder.io/v3
+projectName: venafi-test-wizard
+repo: github.com/kxk-4498/Venafi-test-wizard
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: chaos.ch
+  group: certmanager
+  kind: ChaosIssuer
+  path: github.com/kxk-4498/Venafi-test-wizard/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+  controller: true
+  domain: chaos.ch
+  group: certmanager
+  kind: ChaosClusterIssuer
+  path: github.com/kxk-4498/Venafi-test-wizard/api/v1alpha1
+  version: v1alpha1
+version: "3"
