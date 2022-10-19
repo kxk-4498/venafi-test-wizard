@@ -74,3 +74,7 @@ In the Chaos Issuer, the CertificateRequest Controller will function in a abnorm
 	setReadyCondition(cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Signed")
 	return ctrl.Result{}, nil
 ```
+
+3. Force the controller to sleep periodically
+
+> The controller will stop responding incomming and outgoing requests during sleep time. User can set the interval between sleeps and the duration of each sleep. 
