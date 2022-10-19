@@ -28,9 +28,9 @@ A normal functining CertificateRequest Controller will watch for CertificateRequ
 
 In the Chaos Issuer, the CertificateRequest Controller will function in a abnormal way and bring chaos into the certificate issuing process
 
-1. Disable the group check between Request and Issuer
+1. Issue the CertificateRequest using a Issuer that does not belong to the request's group.
 
-> This test will disable the code that checks whether the issuer's group matches the request's group. The issuer will accept all incomming requests without checking its group.
+> This test will disable the code that checks whether the issuer's group matches the request's group. The issuer will accept all incomming requests without checking its group. The user can manually set the issuer's group to be anything different from the request's group.
 
 ```
 	// Ignore CertificateRequest if issuerRef doesn't match our group
@@ -74,4 +74,3 @@ In the Chaos Issuer, the CertificateRequest Controller will function in a abnorm
 	setReadyCondition(cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Signed")
 	return ctrl.Result{}, nil
 ```
-3. 
