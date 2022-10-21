@@ -17,11 +17,38 @@ TO-DO: give documentation on how to use the issuer
 
 ## Network Chaos ##
 
-1. NETWORK DELAY
+1. Inject network delay inside Kubernetes Cluster 
+> This test will simulate network delays between the pod Cert-manager runs on and the pod the certificate needs to renew. The user can set the network latency value , latency offset (allow the latency to fluctuate) and the duration of the test.
 
-2. PACKET LOSS
+> A sample configuration file sets the latency to 1000 ms, offset to 200ms, making the latency to fluctuate between 800ms and 1200 ms, and duration to 10 minute is shown below
+```
+apiVersion: chaos-issuer.org/v1alpha1
+kind: chaosIssuer
+metadata:
+  name: network-delay
+spec:
+    action: delay
+    delay:
+	  latency: '1000ms' 
+      offset: '200ms'
+	  duration: '10min'
+```
 
+2. Inject packet loss inside Kubernets Cluster
+> This test will simulate packet loss between the pod Cert-manager runs on and the pod the certificate needs to renew. The user can set perecntage of packet loss  and the duration of the test.
 
+> A sample configuration file sets the packet loss percentage to 50 percet,  and duration to 10 minute is shown below
+```
+apiVersion: chaos-issuer.org/v1alpha1
+kind: chaosIssuer
+metadata:
+  name: packet-loss
+spec:
+    action: loss
+    loss:
+	  percentage: '50' 
+	  duration: '10min'
+```
 
 ## CertificateRequest Controller Chaos ##
 A normal functining CertificateRequest Controller will watch for CertificateRequest resources and attempt to sign their attached certificate signing requests (CSR). 
