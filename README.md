@@ -30,7 +30,7 @@ spec:
     action: delay
     delay:
 	  latency: '1000ms' 
-      offset: '200ms'
+	  offset: '200ms'
 	  duration: '10min'
 ```
 
