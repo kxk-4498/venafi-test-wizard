@@ -52,6 +52,7 @@ var (
 type CertificateRequestReconciler struct {
 	client.Client
 	Scheme                   *runtime.Scheme
+	SignerBuilder            signer.SignerBuilder
 
 	Log                      logr.Logger
 	Recorder 				 record.EventRecorder
@@ -182,7 +183,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, fmt.Errorf("%w: %v", errSignerBuilder, err)
 	}
 
-	signed, err := issuer.Sign(cr.Spec.Request)
+	signed, err := signer.Sign(cr.Spec.Request)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("%w: %v", errSignerSign, err)
 	}

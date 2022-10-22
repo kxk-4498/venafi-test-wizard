@@ -51,7 +51,7 @@ type IssuerReconciler struct {
 	Kind                     string
 	Scheme                   *runtime.Scheme
 	ClusterResourceNamespace string
-	HealthCheckerBuilder     issuer.HealthCheckerBuilder
+	HealthCheckerBuilder     signer.HealthCheckerBuilder
 }
 
 // +kubebuilder:rbac:groups=certmanager.chaos.ch,resources=issuers;clusterissuers,verbs=get;list;watch
