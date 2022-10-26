@@ -1,0 +1,97 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: null
+  name: chaosclusterissuers.self-signed-issuer.chaos.ch
+spec:
+  group: self-signed-issuer.chaos.ch
+  names:
+    kind: ChaosClusterIssuer
+    listKind: ChaosClusterIssuerList
+    plural: chaosclusterissuers
+    singular: chaosclusterissuer
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ChaosClusterIssuer is the Schema for the chaosclusterissuers
+          API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ChaosIssuerSpec defines the desired state of ChaosIssuer
+            properties:
+              selfSigned:
+                description: SelfSigned configures this issuer to 'self sign' certificates
+                  using the private key used to create the CertificateRequest object.
+                properties:
+                  crlDistributionPoints:
+                    description: The CRL distribution points is an X.509 v3 certificate
+                      extension which identifies the location of the CRL from which
+                      the revocation of this certificate can be checked. If not set
+                      certificate will be issued without CDP. Values are strings.
+                    items:
+                      type: string
+                    type: array
+                type: object
+            type: object
+          status:
+            description: ChaosIssuerStatus defines the observed state of ChaosIssuer
+            properties:
+              conditions:
+                description: List of status conditions to indicate the status of a
+                  CertificateRequest. Known condition types are `Ready`.
+                items:
+                  description: IssuerCondition contains condition information for
+                    an Issuer.
+                  properties:
+                    lastTransitionTime:
+                      description: LastTransitionTime is the timestamp corresponding
+                        to the last status change of this condition.
+                      format: date-time
+                      type: string
+                    message:
+                      description: Message is a human readable description of the
+                        details of the last transition, complementing reason.
+                      type: string
+                    reason:
+                      description: Reason is a brief machine readable explanation
+                        for the condition's last transition.
+                      type: string
+                    status:
+                      description: Status of the condition, one of ('True', 'False',
+                        'Unknown').
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: Type of the condition, known values are ('Ready').
+                      type: string
+                  required:
+                  - status
+                  - type
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
