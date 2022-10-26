@@ -18,19 +18,31 @@ package controllers
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"time"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	issuerutil "github.com/kxk-4498/Venafi-test-wizard/issuer/util"
 	selfsignedissuerv1alpha1 "github.com/kxk-4498/Venafi-test-wizard/api/v1alpha1"
+)
+
+const (
+	issuerReadyConditionReason = "sample-issuer.IssuerController.Reconcile"
 )
 
 // ChaosIssuerReconciler reconciles a ChaosIssuer object
 type ChaosIssuerReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Kind                     string
+	Scheme                   *runtime.Scheme
+	ClusterResourceNamespace string
 }
 
 //+kubebuilder:rbac:groups=self-signed-issuer.chaos.ch,resources=chaosissuers;chaosclusterissuers,verbs=get;list;watch
@@ -42,14 +54,64 @@ type ChaosIssuerReconciler struct {
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.0/pkg/reconcile
-func (r *ChaosIssuerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
 
-	return ctrl.Result{}, nil
+func (r *IssuerReconciler) newIssuer() (client.Object, error) {
+	issuerGVK := selfsignedissuerv1alpha1.GroupVersion.WithKind(r.Kind)
+	ro, err := r.Scheme.New(issuerGVK)
+	if err != nil {
+		return nil, err
+	}
+	return ro.(client.Object), nil
+}
+
+func (r *ChaosIssuerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	issuer, err := r.newIssuer()
+	if err != nil {
+		log.Error(err, "Unrecognised issuer type")
+		return ctrl.Result{}, nil
+	}
+	if err := r.Get(ctx, req.NamespacedName, issuer); err != nil {
+		if err := client.IgnoreNotFound(err); err != nil {
+			return ctrl.Result{}, fmt.Errorf("unexpected get error: %v", err)
+		}
+		log.Info("Not found. Ignoring.")
+		return ctrl.Result{}, nil
+	}
+
+	issuerSpec, issuerStatus, err := issuerutil.GetSpecAndStatus(issuer)
+	if err != nil {
+		log.Error(err, "Unexpected error while getting issuer spec and status. Not retrying.")
+		return ctrl.Result{}, nil
+	}
+
+	// Always attempt to update the Ready condition
+	defer func() {
+		if err != nil {
+			issuerutil.SetReadyCondition(issuerStatus, selfsignedissuerv1alpha1.ConditionFalse, issuerReadyConditionReason, err.Error())
+		}
+		if updateErr := r.Status().Update(ctx, issuer); updateErr != nil {
+			err = utilerrors.NewAggregate([]error{err, updateErr})
+			result = ctrl.Result{}
+		}
+	}()
+
+	if ready := issuerutil.GetReadyCondition(issuerStatus); ready == nil {
+		issuerutil.SetReadyCondition(issuerStatus, selfsignedissuerv1alpha1.ConditionUnknown, issuerReadyConditionReason, "First seen")
+		return ctrl.Result{}, nil
+	}
+
+	issuerutil.SetReadyCondition(issuerStatus, sampleissuerapi.ConditionTrue, issuerReadyConditionReason, "Success")
+	return nil, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *ChaosIssuerReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	issuerType, err := r.newIssuer()
+	if err != nil {
+		return err
+	}
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&selfsignedissuerv1alpha1.ChaosIssuer{}).
 		Complete(r)
