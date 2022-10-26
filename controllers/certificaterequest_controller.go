@@ -43,7 +43,6 @@ import (
 type CertificateRequestReconciler struct {
 	Scheme *runtime.Scheme
 	client.Client
-	ClusterResourceNamespace string
 	//SignerBuilder          signer.SignerBuilder
 	Log                    logr.Logger
 	Recorder               record.EventRecorder

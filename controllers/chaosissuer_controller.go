@@ -35,9 +35,8 @@ const (
 // ChaosIssuerReconciler reconciles a ChaosIssuer object
 type ChaosIssuerReconciler struct {
 	client.Client
-	Kind                     string
-	Scheme                   *runtime.Scheme
-	ClusterResourceNamespace string
+	Kind   string
+	Scheme *runtime.Scheme
 }
 
 //+kubebuilder:rbac:groups=self-signed-issuer.chaos.ch,resources=chaosissuers;chaosclusterissuers,verbs=get;list;watch
