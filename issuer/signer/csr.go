@@ -20,14 +20,14 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"math/big"
 	"time"
-	"errors"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiutil "github.com/cert-manager/cert-manager/pkg/api/util"
 	v1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var serialNumberLimit = new(big.Int).Lsh(big.NewInt(1), 128)
@@ -121,4 +121,3 @@ func GenerateTemplateFromCertificateRequest(cr *v1.CertificateRequest) (*x509.Ce
 	}
 	return GenerateTemplateFromCSRPEMWithUsages(cr.Spec.Request, certDuration, cr.Spec.IsCA, keyUsage, extKeyUsage)
 }
-

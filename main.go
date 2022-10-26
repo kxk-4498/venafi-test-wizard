@@ -17,20 +17,24 @@ limitations under the License.
 package main
 
 import (
+	"errors"
 	"flag"
+	"fmt"
+	"io/ioutil"
+	"k8s.io/utils/clock"
 	"os"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	cmapi "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	cmapi "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 
 	selfsignedissuerv1alpha1 "github.com/kxk-4498/Venafi-test-wizard/api/v1alpha1"
 	"github.com/kxk-4498/Venafi-test-wizard/controllers"
@@ -57,11 +61,16 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	var printVersion bool
 	var disableApprovedCheck bool
+	var clusterResourceNamespace string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
-	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false, "Enable leader election for controller manager. "+"Enabling this will ensure there is only one active controller manager.")
+	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
+	flag.BoolVar(&printVersion, "version", false, "Print version to stdout and exit")
 	flag.BoolVar(&disableApprovedCheck, "disable-approved-check", false, "Disables waiting for CertificateRequests to have an approved condition before signing.")
+	flag.StringVar(&clusterResourceNamespace, "cluster-resource-namespace", "", "The namespace for secrets in which cluster-scoped resources are found.")
+
 	opts := zap.Options{
 		Development: true,
 	}
@@ -121,18 +130,18 @@ func main() {
 	}
 
 	if err = (&controllers.ChaosIssuerReconciler{
-		Kind: "ChaosIssuer",
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Kind:                     "ChaosIssuer",
+		Client:                   mgr.GetClient(),
+		Scheme:                   mgr.GetScheme(),
 		ClusterResourceNamespace: clusterResourceNamespace,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ChaosIssuer")
 		os.Exit(1)
 	}
-	if err = (&controllers.ChaosClusterIssuerReconciler{
-		Kind: "ChaosClusterIssuer",
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+	if err = (&controllers.ChaosIssuerReconciler{
+		Kind:                     "ChaosClusterIssuer",
+		Client:                   mgr.GetClient(),
+		Scheme:                   mgr.GetScheme(),
 		ClusterResourceNamespace: clusterResourceNamespace,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ChaosClusterIssuer")

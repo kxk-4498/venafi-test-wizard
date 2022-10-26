@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,9 +18,9 @@ package util
 import (
 	"fmt"
 
+	api "github.com/kxk-4498/Venafi-test-wizard/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	api "github.com/kxk-4498/Venafi-test-wizard/api/v1alpha1"
 )
 
 func GetSpecAndStatus(issuer client.Object) (*api.ChaosIssuerSpec, *api.ChaosIssuerStatus, error) {
@@ -31,6 +31,16 @@ func GetSpecAndStatus(issuer client.Object) (*api.ChaosIssuerSpec, *api.ChaosIss
 		return &t.Spec, &t.Status, nil
 	default:
 		return nil, nil, fmt.Errorf("not an issuer type: %t", t)
+	}
+}
+func GetStatus(issuer client.Object) (*api.ChaosIssuerStatus, error) {
+	switch t := issuer.(type) {
+	case *api.ChaosIssuer:
+		return &t.Status, nil
+	case *api.ChaosClusterIssuer:
+		return &t.Status, nil
+	default:
+		return nil, fmt.Errorf("not an issuer type: %t", t)
 	}
 }
 
