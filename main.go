@@ -37,6 +37,8 @@ import (
 	//+kubebuilder:scaffold:imports
 )
 
+const inClusterNamespacePath = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
@@ -55,18 +57,44 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	var disableApprovedCheck bool
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
-		"Enable leader election for controller manager. "+
-			"Enabling this will ensure there is only one active controller manager.")
+	flag.BoolVar(&enableLeaderElection, "leader-elect", false, "Enable leader election for controller manager. "+"Enabling this will ensure there is only one active controller manager.")
+	flag.BoolVar(&disableApprovedCheck, "disable-approved-check", false, "Disables waiting for CertificateRequests to have an approved condition before signing.")
 	opts := zap.Options{
 		Development: true,
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
+	if printVersion {
+		fmt.Println("v1.0")
+		return
+	}
+
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+
+	if clusterResourceNamespace == "" {
+		var err error
+		clusterResourceNamespace, err = getInClusterNamespace()
+		if err != nil {
+			if errors.Is(err, errNotInCluster) {
+				setupLog.Error(err, "please supply --cluster-resource-namespace")
+			} else {
+				setupLog.Error(err, "unexpected error while getting in-cluster Namespace")
+			}
+			os.Exit(1)
+		}
+	}
+
+	setupLog.Info(
+		"starting",
+		"version", "v1.0",
+		"enable-leader-election", enableLeaderElection,
+		"metrics-addr", metricsAddr,
+		"cluster-resource-namespace", clusterResourceNamespace,
+	)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
@@ -93,19 +121,34 @@ func main() {
 	}
 
 	if err = (&controllers.ChaosIssuerReconciler{
+		Kind: "ChaosIssuer",
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
+		ClusterResourceNamespace: clusterResourceNamespace,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ChaosIssuer")
 		os.Exit(1)
 	}
 	if err = (&controllers.ChaosClusterIssuerReconciler{
+		Kind: "ChaosClusterIssuer",
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
+		ClusterResourceNamespace: clusterResourceNamespace,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ChaosClusterIssuer")
 		os.Exit(1)
 	}
+	if err = (&controllers.CertificateRequestReconciler{
+		Client:                   mgr.GetClient(),
+		Scheme:                   mgr.GetScheme(),
+		ClusterResourceNamespace: clusterResourceNamespace,
+		CheckApprovedCondition:   !disableApprovedCheck,
+		Clock:                    clock.RealClock{},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "CertificateRequest")
+		os.Exit(1)
+	}
+
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
@@ -122,4 +165,25 @@ func main() {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+}
+
+var errNotInCluster = errors.New("not running in-cluster")
+
+// Copied from controller-runtime/pkg/leaderelection
+func getInClusterNamespace() (string, error) {
+	// Check whether the namespace file exists.
+	// If not, we are not running in cluster so can't guess the namespace.
+	_, err := os.Stat(inClusterNamespacePath)
+	if os.IsNotExist(err) {
+		return "", errNotInCluster
+	} else if err != nil {
+		return "", fmt.Errorf("error checking namespace file: %w", err)
+	}
+
+	// Load the namespace file and return its content
+	namespace, err := ioutil.ReadFile(inClusterNamespacePath)
+	if err != nil {
+		return "", fmt.Errorf("error reading namespace file: %w", err)
+	}
+	return string(namespace), nil
 }
