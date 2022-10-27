@@ -22,7 +22,6 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/kxk-4498/Venafi-test-wizard/issuer/signer"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/utils/clock"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -32,7 +31,6 @@ import (
 	cmmeta "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
 	cmerrors "github.com/cert-manager/cert-manager/pkg/util/errors"
 	api "github.com/kxk-4498/Venafi-test-wizard/api/v1alpha1"
-	issuerutil "github.com/kxk-4498/Venafi-test-wizard/issuer/util"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -95,7 +93,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, nil
 	}
 
-	// Chaos CA does not support online signing of CA certificate at this time
+	// ChaosIssuer does not support online signing of CA certificate at this time
 	if cr.Spec.IsCA {
 		log.Info("Chaos CA does not support online signing of CA certificates")
 		return ctrl.Result{}, nil
@@ -106,47 +104,21 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	//##############################################################
 
 	// Ignore but log an error if the issuerRef.Kind is unrecognised
-	issuerGVK := api.GroupVersion.WithKind(cr.Spec.IssuerRef.Kind)
-	issuerRO, err := r.Scheme.New(issuerGVK)
-	if err != nil {
-		err = fmt.Errorf("error interpreting issuerRef: %v", err)
-		log.Error(err, "Unrecognised kind. Ignoring.")
-		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonDenied, err.Error())
-		return ctrl.Result{}, err
-	}
-	issuer := issuerRO.(client.Object)
-	// Create a Namespaced name for Issuer and a non-Namespaced name for ClusterIssuer
-	issuerName := types.NamespacedName{
-		Name: cr.Spec.IssuerRef.Name,
-	}
-
-	switch t := issuer.(type) {
-	case *api.ChaosIssuer:
-		issuerName.Namespace = cr.Namespace
-		log = log.WithValues("chaosissuer", issuerName)
-	case *api.ChaosClusterIssuer:
-		log = log.WithValues("chaosclusterissuer", issuerName)
-	default:
-		err := fmt.Errorf("unexpected issuer type: %v", t)
-		log.Error(err, "The issuerRef referred to a registered Kind which is not yet handled. Ignoring.")
-		r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonDenied, err.Error())
-		return ctrl.Result{}, nil
-	}
-
-	// Get the Issuer or ClusterIssuer
-	if err := r.Get(ctx, issuerName, issuer); err != nil {
-		return ctrl.Result{}, fmt.Errorf("error getting issuer: %v", err)
-	}
-
-	issuerSpec, issuerStatus, err := issuerutil.GetSpecAndStatus(issuer)
-	if err != nil {
-		log.Error(err, "Unable to get the IssuerStatus. Ignoring.")
-		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonDenied, err.Error())
+	chaosIssuer := api.ChaosIssuer{}
+	if err := r.Client.Get(ctx, client.ObjectKey{Namespace: req.Namespace, Name: cr.Spec.IssuerRef.Name}, &chaosIssuer); err != nil {
+		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending,
+			"Failed to retrieve chaosIssuer %s/%s: %v", req.Namespace, cr.Spec.IssuerRef.Name, err)
 		return ctrl.Result{}, err
 	}
 
-	if !issuerutil.IsReady(issuerStatus) {
-		return ctrl.Result{}, nil
+	// Check if the ChaosIssuer resource has been marked Ready
+	if !chaosIssuerHasCondition(chaosIssuer, api.IssuerConditionType{
+		Type:   api.IssuerConditionReady,
+		Status: api.ConditionTrue,
+	}) {
+		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending,
+			"chaosIssuer %s/%s is not Ready", req.Namespace, cr.Spec.IssuerRef.Name)
+		return ctrl.Result{}, err
 	}
 
 	//getting temp secret-name created by cert-manager for which holds the temp-private key
@@ -157,15 +129,15 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, nil
 	}
 
-	//fetching the temp-private key from the secret
-	var secret core.Secret
+	//fetching the temporary secret created containing the temporary private key
+	secret := core.Secret{}
 	if err := r.Client.Get(ctx, client.ObjectKey{Namespace: cr.Namespace, Name: secretName}, &secret); err != nil {
 		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending,
-			"Failed to CR secret resource: %v", err)
+			"Failed to fetch CR secret resource: %v", err)
 		return ctrl.Result{}, err
 	}
 
-	// Attempt to decode the private key
+	// Attempt to private key bytes and decoding the private key
 	pkBytes := secret.Data[core.TLSPrivateKeyKey]
 	privatekey, err := signer.DecodePrivateKeyBytes(pkBytes)
 	if err != nil {
@@ -186,7 +158,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, nil
 	}
 
-	template.CRLDistributionPoints = issuerSpec.SelfSigned.CRLDistributionPoints
+	template.CRLDistributionPoints = chaosIssuer.Spec.SelfSigned.CRLDistributionPoints
 
 	if template.Subject.String() == "" {
 		// RFC 5280 (https://tools.ietf.org/html/rfc5280#section-4.1.2.4) says that:
@@ -219,6 +191,21 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	cr.Status.CA = signedPEM
 	// Finally, update the status as signed
 	return ctrl.Result{}, r.setStatus(ctx, log, &cr, cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Successfully issued certificate")
+}
+
+// chaosIssuerHasCondition will return true if the given LocalCA has a
+// condition matching the provided IssuerCondition.
+// Only the Type and Status field will be used in the comparison, meaning that
+// this function will return 'true' even if the Reason, Message and
+// LastTransitionTime fields do not match.
+func chaosIssuerHasCondition(chaosIssuer api.ChaosIssuer, c api.IssuerCondition) bool {
+	existingConditions := chaosIssuer.Status.Conditions
+	for _, cond := range existingConditions {
+		if c.Type == cond.Type && c.Status == cond.Status {
+			return true
+		}
+	}
+	return false
 }
 
 // SetupWithManager initialises the CertificateRequest controller into the
@@ -289,7 +276,7 @@ func (r *CertificateRequestReconciler) requestShouldBeProcessed(ctx context.Cont
 
 // sets the condition of certificate request
 func (r *CertificateRequestReconciler) setStatus(ctx context.Context, log logr.Logger, cr *cmapi.CertificateRequest, status cmmeta.ConditionStatus, reason, message string, args ...interface{}) error {
-	// Format the message and update the localCA variable with the new Condition
+	// Format the message and update the ChaossIssuer variable with the new Condition
 	completeMessage := fmt.Sprintf(message, args...)
 	apiutil.SetCertificateRequestCondition(cr, cmapi.CertificateRequestConditionReady, status, reason, completeMessage)
 
@@ -301,5 +288,5 @@ func (r *CertificateRequestReconciler) setStatus(ctx context.Context, log logr.L
 	r.Recorder.Event(cr, eventType, reason, completeMessage)
 	log.Info(completeMessage)
 
-	return r.Status().Update(ctx, cr) //return r.Client.Status().Update(ctx, cr)??
+	return r.Client.Status().Update(ctx, cr)
 }

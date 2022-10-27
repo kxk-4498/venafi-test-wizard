@@ -19,7 +19,6 @@ import (
 	"fmt"
 
 	api "github.com/kxk-4498/Venafi-test-wizard/api/v1alpha1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -33,53 +32,13 @@ func GetSpecAndStatus(issuer client.Object) (*api.ChaosIssuerSpec, *api.ChaosIss
 		return nil, nil, fmt.Errorf("not an issuer type: %t", t)
 	}
 }
-func GetStatus(issuer client.Object) (*api.ChaosIssuerStatus, error) {
+func GetSpec(issuer client.Object) (*api.ChaosIssuerSpec, error) {
 	switch t := issuer.(type) {
 	case *api.ChaosIssuer:
-		return &t.Status, nil
+		return &t.Spec, nil
 	case *api.ChaosClusterIssuer:
-		return &t.Status, nil
+		return &t.Spec, nil
 	default:
 		return nil, fmt.Errorf("not an issuer type: %t", t)
 	}
-}
-
-func SetReadyCondition(status *api.ChaosIssuerStatus, conditionStatus api.ConditionStatus, reason, message string) {
-	ready := GetReadyCondition(status)
-	if ready == nil {
-		ready = &api.IssuerCondition{
-			Type: api.IssuerConditionReady,
-		}
-		status.Conditions = append(status.Conditions, *ready)
-	}
-	if ready.Status != conditionStatus {
-		ready.Status = conditionStatus
-		now := metav1.Now()
-		ready.LastTransitionTime = &now
-	}
-	ready.Reason = reason
-	ready.Message = message
-
-	for i, c := range status.Conditions {
-		if c.Type == api.IssuerConditionReady {
-			status.Conditions[i] = *ready
-			return
-		}
-	}
-}
-
-func GetReadyCondition(status *api.ChaosIssuerStatus) *api.IssuerCondition {
-	for _, c := range status.Conditions {
-		if c.Type == api.IssuerConditionReady {
-			return &c
-		}
-	}
-	return nil
-}
-
-func IsReady(status *api.ChaosIssuerStatus) bool {
-	if c := GetReadyCondition(status); c != nil {
-		return c.Status == api.ConditionTrue
-	}
-	return false
 }
