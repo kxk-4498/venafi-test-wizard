@@ -79,7 +79,7 @@ func (r *ChaosIssuerReconciler) setChaosIssuerStatus(ctx context.Context, log lo
 //	    condition will be updated and the LastTransitionTime set to the current
 //	    time.
 func (r *ChaosIssuerReconciler) setChaosIssuerCondition(log logr.Logger, chaosIssuer *selfsignedissuerv1alpha1.ChaosIssuer, conditionType selfsignedissuerv1alpha1.IssuerConditionType, status selfsignedissuerv1alpha1.ConditionStatus, reason, message string) {
-	newCondition := selfsignedissuerv1alpha1.chaosIssuerCondition{
+	newCondition := selfsignedissuerv1alpha1.IssuerCondition{
 		Type:    conditionType,
 		Status:  status,
 		Reason:  reason,
