@@ -9,7 +9,7 @@ resources:
     namespaced: true
   controller: true
   domain: chaos.ch
-  group: certmanager
+  group: self-signed-issuer
   kind: ChaosIssuer
   path: github.com/kxk-4498/Venafi-test-wizard/api/v1alpha1
   version: v1alpha1
@@ -17,7 +17,7 @@ resources:
     crdVersion: v1
   controller: true
   domain: chaos.ch
-  group: certmanager
+  group: self-signed-issuer
   kind: ChaosClusterIssuer
   path: github.com/kxk-4498/Venafi-test-wizard/api/v1alpha1
   version: v1alpha1

@@ -4,4 +4,4 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: $(CERTIFICATE_NAMESPACE)/$(CERTIFICATE_NAME)
-  name: chaosissuers.certmanager.chaos.ch
+  name: chaosissuers.self-signed-issuer.chaos.ch

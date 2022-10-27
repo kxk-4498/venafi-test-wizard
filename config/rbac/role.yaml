@@ -6,52 +6,43 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - certmanager.chaos.ch
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - self-signed-issuer.chaos.ch
+  resources:
+  - certificaterequests
+  verbs:
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - self-signed-issuer.chaos.ch
+  resources:
+  - certificaterequests/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - self-signed-issuer.chaos.ch
   resources:
   - chaosclusterissuers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - certmanager.chaos.ch
-  resources:
-  - chaosclusterissuers/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - certmanager.chaos.ch
-  resources:
-  - chaosclusterissuers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - certmanager.chaos.ch
-  resources:
   - chaosissuers
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
-  - certmanager.chaos.ch
+  - self-signed-issuer.chaos.ch
   resources:
-  - chaosissuers/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - certmanager.chaos.ch
-  resources:
+  - chaosclusterissuers/status
   - chaosissuers/status
   verbs:
   - get

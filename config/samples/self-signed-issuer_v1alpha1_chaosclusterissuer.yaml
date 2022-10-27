@@ -1,0 +1,6 @@
+apiVersion: self-signed-issuer.chaos.ch/v1alpha1
+kind: ChaosClusterIssuer
+metadata:
+  name: chaosclusterissuer-sample
+spec:
+  selfSigned: {}

@@ -24,7 +24,7 @@ import (
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
 
-// ClusterIssuer is the Schema for the clusterissuers API
+// ChaosClusterIssuer is the Schema for the chaosclusterissuers API
 type ChaosClusterIssuer struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -35,7 +35,7 @@ type ChaosClusterIssuer struct {
 
 //+kubebuilder:object:root=true
 
-// ClusterIssuerList contains a list of ClusterIssuer
+// ChaosClusterIssuerList contains a list of ChaosClusterIssuer
 type ChaosClusterIssuerList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`

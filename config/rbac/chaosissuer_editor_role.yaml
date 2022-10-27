@@ -12,7 +12,7 @@ metadata:
   name: chaosissuer-editor-role
 rules:
 - apiGroups:
-  - certmanager.chaos.ch
+  - self-signed-issuer.chaos.ch
   resources:
   - chaosissuers
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - certmanager.chaos.ch
+  - self-signed-issuer.chaos.ch
   resources:
   - chaosissuers/status
   verbs:
