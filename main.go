@@ -33,8 +33,6 @@ import (
 	//+kubebuilder:scaffold:imports
 )
 
-const inClusterNamespacePath = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
-
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
@@ -52,8 +50,10 @@ func init() {
 func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
+	var disableApprovedCheck bool
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false, "Enable leader election for controller manager. "+"Enabling this will ensure there is only one active controller manager.")
+	flag.BoolVar(&disableApprovedCheck, "disable-approved-check", false, "Disables waiting for CertificateRequests to have an approved condition before signing.")
 
 	opts := zap.Options{
 		Development: true,
@@ -74,27 +74,29 @@ func main() {
 	}
 
 	if err = (&controllers.ChaosIssuerReconciler{
-		Kind:   "ChaosIssuer",
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:   mgr.GetClient(),
+		Clock:    clock.RealClock{},
+		Recorder: mgr.GetEventRecorderFor("ChaosIssuer-controller"),
+		Log:      ctrl.Log.WithName("controllers").WithName("ChaosIssuer"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ChaosIssuer")
 		os.Exit(1)
 	}
 	if err = (&controllers.ChaosIssuerReconciler{
-		Kind:   "ChaosClusterIssuer",
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:   mgr.GetClient(),
+		Clock:    clock.RealClock{},
+		Recorder: mgr.GetEventRecorderFor("ChaosIssuer-controller"),
+		Log:      ctrl.Log.WithName("controllers").WithName("ChaosIssuer"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ChaosClusterIssuer")
 		os.Exit(1)
 	}
 	if err = (&controllers.CertificateRequestReconciler{
-		Client:   mgr.GetClient(),
-		Scheme:   mgr.GetScheme(),
-		Clock:    clock.RealClock{},
-		Log:      ctrl.Log.WithName("controllers").WithName("CertificateRequest"),
-		Recorder: mgr.GetEventRecorderFor("certificaterequests-controller"),
+		Client:                 mgr.GetClient(),
+		Clock:                  clock.RealClock{},
+		Log:                    ctrl.Log.WithName("controllers").WithName("CertificateRequest"),
+		CheckApprovedCondition: !disableApprovedCheck,
+		Recorder:               mgr.GetEventRecorderFor("certificaterequests-controller"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CertificateRequest")
 		os.Exit(1)

@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/kxk-4498/Venafi-test-wizard/issuer/signer"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/utils/clock"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -39,9 +38,7 @@ import (
 
 // CertificateRequestReconciler reconciles a CertificateRequest object
 type CertificateRequestReconciler struct {
-	Scheme *runtime.Scheme
 	client.Client
-	//SignerBuilder          signer.SignerBuilder
 	Log                    logr.Logger
 	Recorder               record.EventRecorder
 	Clock                  clock.Clock
@@ -112,7 +109,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	// Check if the ChaosIssuer resource has been marked Ready
-	if !chaosIssuerHasCondition(chaosIssuer, api.IssuerConditionType{
+	if !chaosIssuerHasCondition(chaosIssuer, api.IssuerCondition{
 		Type:   api.IssuerConditionReady,
 		Status: api.ConditionTrue,
 	}) {
