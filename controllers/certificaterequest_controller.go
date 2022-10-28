@@ -92,7 +92,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 	// ChaosIssuer does not support online signing of CA certificate at this time
 	if cr.Spec.IsCA {
-		log.Info("Chaos CA does not support online signing of CA certificates")
+		log.Info("Chaos issuer does not support online signing of CA certificates")
 		return ctrl.Result{}, nil
 	}
 
@@ -103,8 +103,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	// Ignore but log an error if the issuerRef.Kind is unrecognised
 	chaosIssuer := api.ChaosIssuer{}
 	if err := r.Client.Get(ctx, client.ObjectKey{Namespace: req.Namespace, Name: cr.Spec.IssuerRef.Name}, &chaosIssuer); err != nil {
-		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending,
-			"Failed to retrieve chaosIssuer %s/%s: %v", req.Namespace, cr.Spec.IssuerRef.Name, err)
+		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending, "Failed to retrieve chaosIssuer %s/%s: %v", req.Namespace, cr.Spec.IssuerRef.Name, err)
 		return ctrl.Result{}, err
 	}
 
@@ -113,8 +112,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 		Type:   api.IssuerConditionReady,
 		Status: api.ConditionTrue,
 	}) {
-		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending,
-			"chaosIssuer %s/%s is not Ready", req.Namespace, cr.Spec.IssuerRef.Name)
+		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending, "chaosIssuer %s/%s is not Ready", req.Namespace, cr.Spec.IssuerRef.Name)
 		return ctrl.Result{}, err
 	}
 
@@ -129,8 +127,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	//fetching the temporary secret created containing the temporary private key
 	secret := core.Secret{}
 	if err := r.Client.Get(ctx, client.ObjectKey{Namespace: cr.Namespace, Name: secretName}, &secret); err != nil {
-		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending,
-			"Failed to fetch CR secret resource: %v", err)
+		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending, "Failed to fetch CR secret resource: %v", err)
 		return ctrl.Result{}, err
 	}
 
