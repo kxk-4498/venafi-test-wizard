@@ -45,10 +45,10 @@ type CertificateRequestReconciler struct {
 	CheckApprovedCondition bool
 }
 
-// annotation for generating RBAC role for writing events
+
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
-// +kubebuilder:rbac:groups=self-signed-issuer.chaos.ch,resources=certificaterequests,verbs=get;list;watch;update
-// +kubebuilder:rbac:groups=self-signed-issuer.chaos.ch,resources=certificaterequests/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=cert-manager.io,resources=certificaterequests,verbs=get;list;watch;update
+// +kubebuilder:rbac:groups=cert-manager.io,resources=certificaterequests/status,verbs=get;update;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -117,7 +117,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	//getting temp secret-name created by cert-manager for which holds the temp-private key
-	secretName, ok := cr.ObjectMeta.Annotations[cmapi.CertificateRequestPrivateKeyAnnotationKey]
+	secretName, ok := cr.ObjectMeta.Annotations[cmapi.CertificateRequestPrivateKeyAnnotationKey] //CertificateRequestPrivateKeyAnnotationKey = "cert-manager.io/private-key-secret-name"
 	if !ok || secretName == "" {
 		message := fmt.Sprintf("Annotation %q missing or reference empty", cmapi.CertificateRequestPrivateKeyAnnotationKey)
 		log.Error(err, message)

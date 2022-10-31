@@ -63,22 +63,52 @@ This project aims to follow the Kubernetes [Operator pattern](https://kubernetes
 It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/) 
 which provides a reconcile function responsible for synchronizing resources untile the desired state is reached on the cluster 
 
-### Test It Out
-1. Install the CRDs into the cluster:
+# Test It Out #
+1. Open a Terminal, Create a Cluster using Kind (our cluster name is sample-test):
+
+```sh
+kind create cluster --name sample-test
+```
+
+2. Install Cert-Manager into the cluster:
+
+```sh
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.yaml
+```
+
+3. Open a new Terminal, Install the CRDs into the cluster:
 
 ```sh
 make install
 ```
 
-2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
+4. In this new Terminal, Run your controller (this will run in the foreground, so switch to the old terminal where you created the cluster if you want to leave it running):
 
 ```sh
 make run
 ```
 
+5. In your older Terminal, create a namespace for our issuer and certificate (the name of our namespace is chaos here):
+
+```sh
+kubectl create namespace chaos
+```
+
+6. Install Chaos Issuer using the yaml file provided in the /config/samples:
+
+```sh
+kubectl apply -f config/samples/self-signed-issuer_v1alpha1_chaosissuer.yaml
+```
+
+7. Deploy a certificate to be signed by our self-signed Chaos Issuer using the yaml file provided in the /config/samples:
+
+```sh
+kubectl apply -f config/samples/certificate_chaosissuer.yaml
+```
+
 **NOTE:** You can also run this in one step by running: `make install run`
 
-### Modifying the API definitions
+## Modifying the API definitions ##
 If you are editing the API definitions, generate the manifests such as CRs or CRDs using:
 
 ```sh
