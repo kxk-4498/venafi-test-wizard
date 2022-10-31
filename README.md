@@ -64,7 +64,14 @@ It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controlle
 which provides a reconcile function responsible for synchronizing resources untile the desired state is reached on the cluster 
 
 # Test It Out #
-1. Open a Terminal, Create a Cluster using Kind (our cluster name is sample-test):
+0. Open a Terminal, and make sure your CRDs are compiled properly before installing them:
+
+```sh
+make generate manifests
+go mod tidy
+```
+
+1. Create a Cluster using Kind (our cluster name is sample-test):
 
 ```sh
 kind create cluster --name sample-test
