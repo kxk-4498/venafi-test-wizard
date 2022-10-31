@@ -14,7 +14,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - self-signed-issuer.chaos.ch
+  - cert-manager.io
   resources:
   - certificaterequests
   verbs:
@@ -23,7 +23,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - self-signed-issuer.chaos.ch
+  - cert-manager.io
   resources:
   - certificaterequests/status
   verbs:

@@ -55,18 +55,19 @@ func main() {
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false, "Enable leader election for controller manager. "+"Enabling this will ensure there is only one active controller manager.")
 	flag.BoolVar(&disableApprovedCheck, "disable-approved-check", false, "Disables waiting for CertificateRequests to have an approved condition before signing.")
 
-	opts := zap.Options{
-		Development: true,
-	}
+	opts := zap.Options{Development: true}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
+	// Set up logging and set up logger
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
 		MetricsBindAddress: metricsAddr,
+		Port:               9443,
 		LeaderElection:     enableLeaderElection,
+		LeaderElectionID:   "dc09e745.chaos.ch",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
@@ -82,15 +83,15 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "ChaosIssuer")
 		os.Exit(1)
 	}
-	if err = (&controllers.ChaosIssuerReconciler{
-		Client:   mgr.GetClient(),
-		Clock:    clock.RealClock{},
-		Recorder: mgr.GetEventRecorderFor("ChaosIssuer-controller"),
-		Log:      ctrl.Log.WithName("controllers").WithName("ChaosIssuer"),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "ChaosClusterIssuer")
-		os.Exit(1)
-	}
+	// if err = (&controllers.ChaosIssuerReconciler{
+	// 	Client:   mgr.GetClient(),
+	// 	Clock:    clock.RealClock{},
+	// 	Recorder: mgr.GetEventRecorderFor("ChaosIssuer-controller"),
+	// 	Log:      ctrl.Log.WithName("controllers").WithName("ChaosIssuer"),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	setupLog.Error(err, "unable to create controller", "controller", "ChaosClusterIssuer")
+	// 	os.Exit(1)
+	// }
 	if err = (&controllers.CertificateRequestReconciler{
 		Client:                 mgr.GetClient(),
 		Clock:                  clock.RealClock{},
