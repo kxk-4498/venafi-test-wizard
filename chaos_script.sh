@@ -41,6 +41,7 @@ do
         make deploy
         make run &> output.log &
         echo "############################################################################"  
+        echo ""
         ;;
 
 
@@ -65,18 +66,33 @@ do
                 kubectl apply -f config/samples/self-signed-issuer_v1alpha1_chaosissuer.yaml -n $ns_name
                 echo "Issuers running: "
                 kubectl get ChaosIssuer -n $ns_name
+                echo ""
 
         #Installing the certificate.       
         elif [ ${arr[2]]} == "cert" ]
         then
-            echo "hello"
             echo "############################################################################" 
-                echo "Namesapces available :"
-                kubectl get namespaces
-                echo "############################################################################" 
-                read -p "What namespace would you like to use? " ns_name 
-                kubectl apply -f config/samples/certificate_chaosissuer.yaml -n $ns_name
+            echo "Namesapces available :"
+            kubectl get namespaces
+            echo "############################################################################" 
+            read -p "What namespace would you like to use? " ns_name 
+            echo "Creating certificate ..."
+            kubectl apply -f config/samples/certificate_chaosissuer.yaml -n $ns_name
+            echo ""
         fi
+        ;;
+        
+        
+        #Show condition.
+        "show")
+        echo "############################################################################" 
+        echo "Namesapces available :"
+        kubectl get namespaces
+        echo "############################################################################" 
+        read -p "What namespace would you like to use? " ns_name 
+        echo "Getting certificates ..."
+        kubectl get certificates -n $ns_name 
+        echo ""
         ;;
 
 
