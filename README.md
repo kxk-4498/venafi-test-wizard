@@ -86,7 +86,7 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 3. Open a new Terminal, Install the CRDs into the cluster:
 
 ```sh
-make install
+make deploy
 ```
 
 4. In this new Terminal, Run your controller (this will run in the foreground, so switch to the old terminal where you created the cluster if you want to leave it running):
