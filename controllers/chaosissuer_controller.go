@@ -38,9 +38,11 @@ type ChaosIssuerReconciler struct {
 	Recorder record.EventRecorder
 }
 
-//+kubebuilder:rbac:groups=self-signed-issuer.chaos.ch,resources=chaosissuers;chaosclusterissuers,verbs=get;list;watch
+//+kubebuilder:rbac:groups=self-signed-issuer.chaos.ch,resources=chaosissuers;chaosclusterissuers,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=self-signed-issuer.chaos.ch,resources=chaosissuers/status;chaosclusterissuers/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
+// +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;create;update
 
 func (r *ChaosIssuerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("chaosIssuer", req.NamespacedName)
