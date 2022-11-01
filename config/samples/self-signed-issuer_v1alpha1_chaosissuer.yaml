@@ -2,6 +2,5 @@ apiVersion: self-signed-issuer.chaos.ch/v1alpha1
 kind: ChaosIssuer
 metadata:
   name: chaosissuer-sample
-  namespace: chaos
 spec:
   selfSigned: {}

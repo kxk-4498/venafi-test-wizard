@@ -1,0 +1,22 @@
+test -s /Users/naveen28/Documents/venafi-1/Venafi-test-wizard/bin/controller-gen || GOBIN=/Users/naveen28/Documents/venafi-1/Venafi-test-wizard/bin go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.9.2
+/Users/naveen28/Documents/venafi-1/Venafi-test-wizard/bin/controller-gen rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+/Users/naveen28/Documents/venafi-1/Venafi-test-wizard/bin/controller-gen object:headerFile="hack/boilerplate.go.txt" paths="./..."
+go fmt ./...
+go vet ./...
+go run ./main.go
+1.667288630163473e+09	INFO	controller-runtime.metrics	Metrics server is starting to listen	{"addr": ":8080"}
+1.667288630163668e+09	INFO	setup	starting manager
+1.66728863016399e+09	INFO	Starting server	{"path": "/metrics", "kind": "metrics", "addr": "[::]:8080"}
+1.667288630164004e+09	INFO	Starting EventSource	{"controller": "certificaterequest", "controllerGroup": "cert-manager.io", "controllerKind": "CertificateRequest", "source": "kind source: *v1.CertificateRequest"}
+1.66728863016445e+09	INFO	Starting Controller	{"controller": "certificaterequest", "controllerGroup": "cert-manager.io", "controllerKind": "CertificateRequest"}
+1.667288630164068e+09	INFO	Starting EventSource	{"controller": "chaosissuer", "controllerGroup": "self-signed-issuer.chaos.ch", "controllerKind": "ChaosIssuer", "source": "kind source: *v1alpha1.ChaosIssuer"}
+1.6672886301644642e+09	INFO	Starting Controller	{"controller": "chaosissuer", "controllerGroup": "self-signed-issuer.chaos.ch", "controllerKind": "ChaosIssuer"}
+1.667288630265756e+09	INFO	Starting workers	{"controller": "certificaterequest", "controllerGroup": "cert-manager.io", "controllerKind": "CertificateRequest", "worker count": 1}
+1.667288630265731e+09	INFO	Starting workers	{"controller": "chaosissuer", "controllerGroup": "self-signed-issuer.chaos.ch", "controllerKind": "ChaosIssuer", "worker count": 1}
+1.667288657530667e+09	INFO	controllers.ChaosIssuer	setting lastTransitionTime for chaosIssuer condition	{"chaosIssuer": "chaos/chaosissuer-sample", "condition": "Ready", "time": 1667288657.530658}
+1.66728865753121e+09	DEBUG	events	Signing ChaosIssuer verified and ready to issue certificates	{"type": "Normal", "object": {"kind":"ChaosIssuer","namespace":"chaos","name":"chaosissuer-sample","uid":"badcd131-72ae-4867-9b48-d0178e8120ba","apiVersion":"self-signed-issuer.chaos.ch/v1alpha1","resourceVersion":"683"}, "reason": "Verified"}
+1.667288657549786e+09	DEBUG	events	Signing ChaosIssuer verified and ready to issue certificates	{"type": "Normal", "object": {"kind":"ChaosIssuer","namespace":"chaos","name":"chaosissuer-sample","uid":"badcd131-72ae-4867-9b48-d0178e8120ba","apiVersion":"self-signed-issuer.chaos.ch/v1alpha1","resourceVersion":"685"}, "reason": "Verified"}
+1.667288694121923e+09	INFO	controllers.CertificateRequest	Successfully issued certificate	{"certificaterequests": "chaos/certificate-by-chaos-issuer1-xljmx"}
+1.667288694121948e+09	DEBUG	events	Successfully issued certificate	{"type": "Normal", "object": {"kind":"CertificateRequest","namespace":"chaos","name":"certificate-by-chaos-issuer1-xljmx","uid":"e7cc8a07-757a-4f79-b6f5-3e9e9309b1ff","apiVersion":"cert-manager.io/v1","resourceVersion":"758"}, "reason": "Issued"}
+signal: killed
+make: *** [run] Error 1
