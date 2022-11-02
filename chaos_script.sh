@@ -1,5 +1,5 @@
 #! /bin/bash
-
+cat logo.txt
 
 while :
 do
