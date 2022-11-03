@@ -63,7 +63,45 @@ This project aims to follow the Kubernetes [Operator pattern](https://kubernetes
 It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/) 
 which provides a reconcile function responsible for synchronizing resources untile the desired state is reached on the cluster 
 
-# Test It Out #
+# Test It Out using Script #
+0. Run the script
+
+```sh
+.\chaos_script.sh
+```
+
+1. Create the environment with the dependencies for chaos-testing:
+
+```sh
+chaos setup
+```
+
+2. Deploy the chaos issuer:
+
+```sh
+chaos deploy issuer
+```
+
+3. Deploy the certificate:
+
+```sh
+chaos deploy cert
+```
+
+4. To see available certificates:
+
+```sh
+chaos show cert
+```
+
+5. To delete the resources allocated:
+
+```sh
+chaos terminate
+```
+
+
+# Test It Out Manually #
 0. Open a Terminal, and make sure your CRDs are compiled properly before installing them:
 
 ```sh
