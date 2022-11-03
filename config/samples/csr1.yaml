@@ -4,6 +4,5 @@ metadata:
   name: chaosissuer-sample
 spec:
   selfSigned: {}
-  Scenarios:
+  CRScenario1:
     scenario1: True
-    scenario2: False

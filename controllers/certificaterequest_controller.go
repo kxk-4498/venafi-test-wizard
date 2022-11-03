@@ -78,8 +78,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, err
 	}
 
-	csr1 = chaosIssuer.Spec.Scenarios.scenario1
-
+	csr1 = chaosIssuer.Spec.CRScenario1.scenario1
 	/*if !CertificateSigningRequest1.scenario1{
 		cr.Spec.IssuerRef.Group = api.GroupVersion.Group
 	}*/

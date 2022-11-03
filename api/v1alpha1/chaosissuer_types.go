@@ -26,8 +26,8 @@ type ChaosIssuerSpec struct {
 	// SelfSigned configures this issuer to 'self sign' certificates using the
 	// private key used to create the CertificateRequest object.
 	// +optional
-	SelfSigned *SelfSignedIssuer `json:"selfSigned,omitempty"`
-	CSR1       *Scenarios        `json:"selfSigned,omitempty"`
+	SelfSigned  *SelfSignedIssuer `json:"selfSigned,omitempty"`
+	CRScenario1 *CSR1             `json:"CRScenario1,omitempty"`
 }
 
 // Configures an issuer to 'self sign' certificates using the
@@ -40,10 +40,8 @@ type SelfSignedIssuer struct {
 	CRLDistributionPoints []string `json:"crlDistributionPoints,omitempty"`
 }
 
-type Scenarios struct {
-	scenario1 bool //Scenario 1: when issuer doesn't belong to request group
-	scenario2 bool //Scenario 2: Set Ready = Signed when CertificateRequest has been denied
-
+type CSR1 struct {
+	scenario1 bool `json:"scenario1,omitempty"` //Scenario 1: when issuer doesn't belong to request group
 }
 
 // ChaosIssuerStatus defines the observed state of ChaosIssuer
