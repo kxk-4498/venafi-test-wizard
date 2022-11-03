@@ -39,7 +39,7 @@ import (
 )
 
 // Declare the sleep scenario duration variable
-var globalSleepDuration int = 0
+var globalSleepDuration = 0
 
 // CertificateRequestReconciler reconciles a CertificateRequest object
 type CertificateRequestReconciler struct {
@@ -112,13 +112,13 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	//Get the sleep duration and force the controller to sleep
+	log.V(4).Info("Test log output")
+	globalSleepDuration = chaosIssuer.Spec.Scenario3.Scenario3Duration
 	if globalSleepDuration != 0 {
-		globalSleepDuration = chaosIssuer.Spec.Scenario3.Scenario3Duration
-		log.Info(strconv.Itoa(globalSleepDuration))
+		log.V(4).Info(strconv.Itoa(globalSleepDuration))
+		//time.Sleep(time.Duration(globalSleepDuration) * time.Second)
 		return ctrl.Result{}, nil
 	}
-
-	//time.Sleep(time.Duration(globalSleepDuration) * time.Second)
 
 	// Check if the ChaosIssuer resource has been marked Ready
 	if !chaosIssuerHasCondition(chaosIssuer, api.IssuerCondition{
