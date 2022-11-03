@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/kxk-4498/Venafi-test-wizard/issuer/signer"
@@ -38,8 +39,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-// Declare the sleep scenario duration variable
-var globalSleepDuration = 0
+// // Declare the sleep scenario duration variable
+var globalSleepDuration int
 
 // CertificateRequestReconciler reconciles a CertificateRequest object
 type CertificateRequestReconciler struct {
@@ -112,12 +113,17 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	//Get the sleep duration and force the controller to sleep
+
 	log.V(4).Info("Test log output")
+
+	//globalSleepDuration := 0
 	globalSleepDuration = chaosIssuer.Spec.Scenario3.Scenario3Duration
+
 	if globalSleepDuration != 0 {
 		log.V(4).Info(strconv.Itoa(globalSleepDuration))
+		time.Sleep(time.Duration(globalSleepDuration) * time.Second)
 		//time.Sleep(time.Duration(globalSleepDuration) * time.Second)
-		return ctrl.Result{}, nil
+		//return ctrl.Result{}, nil
 	}
 
 	// Check if the ChaosIssuer resource has been marked Ready
@@ -197,6 +203,10 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	// We set the CA to the returned certificate here since this is self signed.
 	cr.Status.CA = signedPEM
 	// Finally, update the status as signed
+	if globalSleepDuration != 0 {
+		return ctrl.Result{}, r.setStatus(ctx, log, &cr, cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Successfully issued certificate after waiting %ds", globalSleepDuration)
+	}
+
 	return ctrl.Result{}, r.setStatus(ctx, log, &cr, cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Successfully issued certificate")
 }
 

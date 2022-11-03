@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-logr/logr"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -53,6 +54,9 @@ func (r *ChaosIssuerReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		log.Error(err, "failed to retrieve chaosIssuer resource")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
+
+	//	if !chaosIssuer.Spec.Scenario3.Scenario3Duration{
+	//		chaosIssuer.Spec.Scenario3.Scenario3Duration = 0}
 
 	return ctrl.Result{}, r.setChaosIssuerStatus(ctx, log, &chaosIssuer, selfsignedissuerv1alpha1.ConditionTrue, "Verified", "Signing ChaosIssuer verified and ready to issue certificates")
 }
