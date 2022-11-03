@@ -46,5 +46,13 @@ sequenceDiagram
     Chaos Issuer CLI->>Kubernetes API:kubectl get cert
     Kubernetes API->>Chaos Issuer CLI:list of certs
     Chaos Issuer CLI->>Developer:list of certs
+    Developer-->>Chaos Issuer CLI:chaos show metrics
+    Chaos Issuer CLI-->>Kubernetes API:kubectl logs cert-manager
+    Kubernetes API-->>Cert Manager:get cert-manager logs
+    Cert Manager-->>Chaos Issuer CLI: show cert-manager logs
+    Chaos Issuer CLI-->>Kubernetes API:kubectl logs controller-manager
+    Kubernetes API-->>Chaos Controller Manager:get controller manager logs
+    Chaos Controller Manager-->>Chaos Issuer CLI: show chaos controller-manager logs
+    Chaos Issuer CLI-->>Developer: Logs
 ```
 
