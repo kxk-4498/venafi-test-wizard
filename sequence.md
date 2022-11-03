@@ -13,6 +13,7 @@ spec:
     duration: 10
 ```
 Now everytime, the issuer signs the certificate, it'll sleep for 10 seconds before signing it. the delay will be logged as well for getting metrics.
+**NOTE:** chaos show metrics is under progress and not available in PROD yet.
 
 ```mermaid
 sequenceDiagram
