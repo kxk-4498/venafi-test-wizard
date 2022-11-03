@@ -41,7 +41,7 @@ type SelfSignedIssuer struct {
 }
 
 type CSR1 struct {
-	scenario1 bool `json:"scenario1,omitempty"` //Scenario 1: when issuer doesn't belong to request group
+	Scenario1 bool `json:"Scenario1,omitempty"` //Scenario 1: when issuer doesn't belong to request group
 }
 
 // ChaosIssuerStatus defines the observed state of ChaosIssuer

@@ -37,7 +37,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-var csr1 bool
+var csr1 bool = false
 
 // CertificateRequestReconciler reconciles a CertificateRequest object
 type CertificateRequestReconciler struct {
@@ -78,14 +78,15 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, err
 	}
 
-	csr1 = chaosIssuer.Spec.CRScenario1.scenario1
+	csr1 = chaosIssuer.Spec.CRScenario1.Scenario1
 	/*if !CertificateSigningRequest1.scenario1{
 		cr.Spec.IssuerRef.Group = api.GroupVersion.Group
 	}*/
 
 	// Check the CertificateRequest's issuerRef and if it does not match the api
 	// group name, log a message at a debug level and stop processing.
-	if csr1 != null && !csr1 {
+	if !csr1 {
+		log.V(4).Info("Scenario1 check", "csr1", csr1)
 		if cr.Spec.IssuerRef.Group != "" && cr.Spec.IssuerRef.Group != api.GroupVersion.Group {
 			log.V(4).Info("resource does not specify an issuerRef group name that we are responsible for", "group", cr.Spec.IssuerRef.Group)
 			return ctrl.Result{}, nil

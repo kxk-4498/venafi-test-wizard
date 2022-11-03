@@ -5,4 +5,4 @@ metadata:
 spec:
   selfSigned: {}
   CRScenario1:
-    scenario1: True
+    Scenario1: True
