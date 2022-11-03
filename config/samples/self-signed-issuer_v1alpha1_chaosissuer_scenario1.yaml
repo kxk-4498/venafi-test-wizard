@@ -5,6 +5,6 @@ metadata:
 spec:
   selfSigned: {}
   Scenarios:
-    sleepDuration: "15"
-    Scenario1: "False"
+    sleepDuration: "0"
+    Scenario1: "True"
     Scenario2: "False"
