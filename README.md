@@ -257,6 +257,17 @@ In the Chaos Issuer, the CertificateRequest Controller will function in a abnorm
 
 > The controller will stop responding incomming and outgoing requests during sleep time. User can set the interval between sleeps and the duration of each sleep. 
 
+> A sample configuration file sets sleep duration to 10 second is shown below
+```
+apiVersion: self-signed-issuer.chaos.ch/v1alpha1
+kind: ChaosIssuer
+metadata:
+  name: chaosissuer-scenario3
+spec:
+  selfSigned: {}
+  Scenarios:
+    sleepDuration: "10"
+```
 ## License
 
 Copyright 2022 CMU-SV.
