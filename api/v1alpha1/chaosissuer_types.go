@@ -27,6 +27,12 @@ type ChaosIssuerSpec struct {
 	// private key used to create the CertificateRequest object.
 	// +optional
 	SelfSigned *SelfSignedIssuer `json:"selfSigned,omitempty"`
+	Scenario3  *ChaosScenario3   `json:"Scenario3,omitempty"`
+}
+
+// Configures the duration of the sleep scenario
+type ChaosScenario3 struct {
+	Scenario3Duration int `json:"duration,omitempty"`
 }
 
 // Configures an issuer to 'self sign' certificates using the

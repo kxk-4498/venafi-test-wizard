@@ -36,6 +36,12 @@ spec:
           spec:
             description: ChaosIssuerSpec defines the desired state of ChaosIssuer
             properties:
+              Scenario3:
+                description: Configures the duration of the sleep scenario
+                properties:
+                  duration:
+                    type: integer
+                type: object
               selfSigned:
                 description: SelfSigned configures this issuer to 'self sign' certificates
                   using the private key used to create the CertificateRequest object.

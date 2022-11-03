@@ -1,0 +1,8 @@
+apiVersion: self-signed-issuer.chaos.ch/v1alpha1
+kind: ChaosIssuer
+metadata:
+  name: chaosissuer-sample
+spec:
+  selfSigned: {}
+  Scenario3:
+    duration: 10
