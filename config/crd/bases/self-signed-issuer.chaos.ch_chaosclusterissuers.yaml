@@ -39,8 +39,16 @@ spec:
               Scenarios:
                 description: Configures the duration of the sleep scenario
                 properties:
+                  Scenario1:
+                    type: string
+                  Scenario2:
+                    type: string
                   sleepDuration:
                     type: string
+                required:
+                - Scenario1
+                - Scenario2
+                - sleepDuration
                 type: object
               selfSigned:
                 description: SelfSigned configures this issuer to 'self sign' certificates
@@ -55,6 +63,8 @@ spec:
                       type: string
                     type: array
                 type: object
+            required:
+            - Scenarios
             type: object
           status:
             description: ChaosIssuerStatus defines the observed state of ChaosIssuer

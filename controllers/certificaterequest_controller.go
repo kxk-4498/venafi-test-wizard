@@ -40,7 +40,11 @@ import (
 )
 
 // // Declare the sleep scenario duration variable
-var globalSleepDuration int = 0
+var (
+	globalSleepDuration int  = 0
+	csr1                bool = false
+	csr2                bool = false
+)
 
 // CertificateRequestReconciler reconciles a CertificateRequest object
 type CertificateRequestReconciler struct {
@@ -75,17 +79,39 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, err
 	}
 
+	chaosIssuer := api.ChaosIssuer{}
+	if err := r.Client.Get(ctx, client.ObjectKey{Namespace: req.Namespace, Name: cr.Spec.IssuerRef.Name}, &chaosIssuer); err != nil {
+		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending, "Failed to retrieve chaosIssuer %s/%s: %v", req.Namespace, cr.Spec.IssuerRef.Name, err)
+		return ctrl.Result{}, err
+	}
+
+	csr1, err = strconv.ParseBool(chaosIssuer.Spec.Scenarios.Scenario1)
+	if err != nil {
+		log.Error(err, "failure")
+	}
+
+	csr2, err = strconv.ParseBool(chaosIssuer.Spec.Scenarios.Scenario2)
+	if err != nil {
+		log.Error(err, "failure")
+	}
+
 	// Check the CertificateRequest's issuerRef and if it does not match the api
 	// group name, log a message at a debug level and stop processing.
-	if cr.Spec.IssuerRef.Group != "" && cr.Spec.IssuerRef.Group != api.GroupVersion.Group {
-		log.V(4).Info("resource does not specify an issuerRef group name that we are responsible for", "group", cr.Spec.IssuerRef.Group)
-		return ctrl.Result{}, nil
+	log.V(4).Info("Scenario1 check if value csr1 is True. csr1:%t", csr1)
+	if !csr1 {
+		if cr.Spec.IssuerRef.Group != "" && cr.Spec.IssuerRef.Group != api.GroupVersion.Group {
+			log.V(4).Info("resource does not specify an issuerRef group name that we are responsible for", "group", cr.Spec.IssuerRef.Group)
+			return ctrl.Result{}, nil
+		}
 	}
 
 	//requestShouldBeProcessed is function given below to check for different conditions of Certificate Request
-	shouldProcess, err := r.requestShouldBeProcessed(ctx, log, &cr)
-	if err != nil || !shouldProcess {
-		return ctrl.Result{}, err
+	log.V(4).Info("Scenario2 check if value csr1 is True. csr2:%t", csr2)
+	if !csr2 {
+		shouldProcess, err := r.requestShouldBeProcessed(ctx, log, &cr)
+		if err != nil || !shouldProcess {
+			return ctrl.Result{}, err
+		}
 	}
 
 	// If the certificate data is already set then we skip this request as it
@@ -106,11 +132,6 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	//##############################################################
 
 	// Ignore but log an error if the issuerRef.Kind is unrecognised
-	chaosIssuer := api.ChaosIssuer{}
-	if err := r.Client.Get(ctx, client.ObjectKey{Namespace: req.Namespace, Name: cr.Spec.IssuerRef.Name}, &chaosIssuer); err != nil {
-		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending, "Failed to retrieve chaosIssuer %s/%s: %v", req.Namespace, cr.Spec.IssuerRef.Name, err)
-		return ctrl.Result{}, err
-	}
 
 	//Get the sleep duration and force the controller to sleep
 
@@ -118,6 +139,9 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 	//globalSleepDuration := 0
 	globalSleepDuration, err = strconv.Atoi(chaosIssuer.Spec.Scenarios.SleepDuration)
+	if err != nil {
+		log.Error(err, "failure")
+	}
 
 	if globalSleepDuration != 0 {
 		log.V(4).Info("default values of the chaos sleep scenario with error %ds: %s", globalSleepDuration, err)
@@ -203,6 +227,12 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	// We set the CA to the returned certificate here since this is self signed.
 	cr.Status.CA = signedPEM
 	// Finally, update the status as signed
+	if csr1 {
+		return ctrl.Result{}, r.setStatus(ctx, log, &cr, cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Successfully issued certificate but issuer didn't check if certificate requestgroup matched matched the issuer.")
+	}
+	if csr2 {
+		return ctrl.Result{}, r.setStatus(ctx, log, &cr, cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Successfully issued certificate but issuer didn't check if CertificateRequest has been denied.")
+	}
 	if globalSleepDuration != 0 {
 		return ctrl.Result{}, r.setStatus(ctx, log, &cr, cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Successfully issued certificate after waiting %ds", globalSleepDuration)
 	}
