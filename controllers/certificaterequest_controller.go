@@ -19,7 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"time"
+	"strconv"
 
 	"github.com/go-logr/logr"
 	"github.com/kxk-4498/Venafi-test-wizard/issuer/signer"
@@ -112,8 +112,13 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	//Get the sleep duration and force the controller to sleep
-	globalSleepDuration = chaosIssuer.Spec.Scenario3.Scenario3Duration
-	time.Sleep(time.Duration(globalSleepDuration) * time.Second)
+	if globalSleepDuration != 0 {
+		globalSleepDuration = chaosIssuer.Spec.Scenario3.Scenario3Duration
+		log.Info(strconv.Itoa(globalSleepDuration))
+		return ctrl.Result{}, nil
+	}
+
+	//time.Sleep(time.Duration(globalSleepDuration) * time.Second)
 
 	// Check if the ChaosIssuer resource has been marked Ready
 	if !chaosIssuerHasCondition(chaosIssuer, api.IssuerCondition{
