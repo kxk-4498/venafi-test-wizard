@@ -23,22 +23,28 @@ import (
 // ChaosIssuerSpec defines the desired state of ChaosIssuer
 type ChaosIssuerSpec struct {
 
-	// URL is the base URL for the step certificates instance.
-	URL string `json:"url"`
-	// A reference to a Secret in the same namespace as the referent. If the
-	// referent is a ClusterIssuer, the reference instead refers to the resource
-	// with the given name in the configured 'cluster resource namespace', which
-	// is set as a flag on the controller component (and defaults to the
-	// namespace that the controller runs in).
-	AuthSecretName string `json:"authSecretName"`
+	// SelfSigned configures this issuer to 'self sign' certificates using the
+	// private key used to create the CertificateRequest object.
+	// +optional
+	SelfSigned *SelfSignedIssuer `json:"selfSigned,omitempty"`
+}
+
+// Configures an issuer to 'self sign' certificates using the
+// private key used to create the CertificateRequest object.
+type SelfSignedIssuer struct {
+	// The CRL distribution points is an X.509 v3 certificate extension which identifies
+	// the location of the CRL from which the revocation of this certificate can be checked.
+	// If not set certificate will be issued without CDP. Values are strings.
+	// +optional
+	CRLDistributionPoints []string `json:"crlDistributionPoints,omitempty"`
 }
 
 // ChaosIssuerStatus defines the observed state of ChaosIssuer
 type ChaosIssuerStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// List of status conditions to indicate the status of a CertificateRequest.
+	// Known condition types are `Ready`.
 	// +optional
-	Conditions []ChaosIssuerCondition `json:"conditions,omitempty"`
+	Conditions []IssuerCondition `json:"conditions,omitempty"`
 }
 
 //+kubebuilder:object:root=true

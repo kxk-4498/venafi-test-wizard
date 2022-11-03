@@ -2,17 +2,10 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  labels:
-    app.kubernetes.io/name: clusterrole
-    app.kubernetes.io/instance: chaosissuer-editor-role
-    app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: venafi-test-wizard
-    app.kubernetes.io/part-of: venafi-test-wizard
-    app.kubernetes.io/managed-by: kustomize
   name: chaosissuer-editor-role
 rules:
 - apiGroups:
-  - certmanager.chaos.ch
+  - self-signed-issuer.chaos.ch
   resources:
   - chaosissuers
   verbs:
@@ -24,7 +17,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - certmanager.chaos.ch
+  - self-signed-issuer.chaos.ch
   resources:
   - chaosissuers/status
   verbs:
