@@ -33,8 +33,8 @@ type ChaosIssuerSpec struct {
 // Configures the duration of the sleep scenario
 type ChaosScenarios struct {
 	SleepDuration string `json:"sleepDuration"`
-	Scenario1 string `json:"Scenario1"` //Scenario 1: when issuer doesn't belong to request group
-	Scenario2 string `json:"Scenario2"`//Scenario 2: Set Ready = Signed when CertificateRequest has been denied
+	Scenario1     string `json:"Scenario1"` //Scenario 1: when issuer doesn't belong to request group
+	Scenario2     string `json:"Scenario2"` //Scenario 2: Set Ready = Signed when CertificateRequest has been denied
 }
 
 // Configures an issuer to 'self sign' certificates using the

@@ -41,9 +41,9 @@ import (
 
 // // Declare the sleep scenario duration variable
 var (
-	globalSleepDuration int = 0
-	csr1 bool = false
-	csr2 bool = false
+	globalSleepDuration int  = 0
+	csr1                bool = false
+	csr2                bool = false
 )
 
 // CertificateRequestReconciler reconciles a CertificateRequest object
@@ -87,12 +87,12 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 	csr1, err = strconv.ParseBool(chaosIssuer.Spec.Scenarios.Scenario1)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err, "failure")
 	}
 
 	csr2, err = strconv.ParseBool(chaosIssuer.Spec.Scenarios.Scenario2)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err, "failure")
 	}
 
 	// Check the CertificateRequest's issuerRef and if it does not match the api
@@ -111,7 +111,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 		shouldProcess, err := r.requestShouldBeProcessed(ctx, log, &cr)
 		if err != nil || !shouldProcess {
 			return ctrl.Result{}, err
-	}
+		}
 	}
 
 	// If the certificate data is already set then we skip this request as it
@@ -140,7 +140,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	//globalSleepDuration := 0
 	globalSleepDuration, err = strconv.Atoi(chaosIssuer.Spec.Scenarios.SleepDuration)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err, "failure")
 	}
 
 	if globalSleepDuration != 0 {
@@ -227,10 +227,10 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	// We set the CA to the returned certificate here since this is self signed.
 	cr.Status.CA = signedPEM
 	// Finally, update the status as signed
-	if csr1{
+	if csr1 {
 		return ctrl.Result{}, r.setStatus(ctx, log, &cr, cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Successfully issued certificate but issuer didn't check if certificate requestgroup matched matched the issuer.")
 	}
-	if csr2{
+	if csr2 {
 		return ctrl.Result{}, r.setStatus(ctx, log, &cr, cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Successfully issued certificate but issuer didn't check if CertificateRequest has been denied.")
 	}
 	if globalSleepDuration != 0 {
