@@ -55,7 +55,7 @@ func (r *ChaosIssuerReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	//fills the IssuerSpec with default values
+	//checks the IssuerSpec for values
 	defaultBool, err := defaultChaosIssuerSpec(chaosIssuer.Spec)
 	if defaultBool {
 		log.Error(err, "missing parameters were given default values in chaosIssuer yaml config")
@@ -130,6 +130,10 @@ func defaultChaosIssuerSpec(s selfsignedissuerv1alpha1.ChaosIssuerSpec) (bool, e
 	switch {
 	case s.Scenarios.SleepDuration == "":
 		return true, fmt.Errorf("Default value not given for choas sleep scenario!")
+	case s.Scenarios.Scenario1 == "":
+		return true, fmt.Errorf("Default value not given for choas Scenario1!")
+	case s.Scenarios.Scenario2 == "":
+		return true, fmt.Errorf("Default value not given for choas Scenario1!")
 	default:
 		return false, nil
 	}
