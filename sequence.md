@@ -29,12 +29,19 @@ sequenceDiagram
     Kubernetes API->>Cert Manager:creating cert manager resources
     Cert Manager->>Kubernetes API:cert manager resources created and ready
     Chaos Issuer CLI->>Kubernetes API:make deploy
+    Kubernetes API->>Chaos Controller Manager:created custom resources
+    Chaos Controller Manager->>Kubernetes API:custom resources created
     Chaos Issuer CLI->>Kubernetes API:make run
+    Kubernetes API->>Chaos Controller Manager:Run controller manager
+    Chaos Controller Manager->>Kubernetes API:chaos controller manager live and running
+    Kubernetes API->>Chaos Issuer CLI:all resources created, live and running
+    Chaos Issuer CLI-->>Developer:return
     Developer->>Chaos Issuer CLI:chaos deploy issuer
     Chaos Issuer CLI->>Kubernetes API:kubectl apply chaos issuer
     Kubernetes API->>Chaos Controller Manager:create chaos issuer
     Chaos Controller Manager->>Kubernetes API:choas issuer ready
     Note over Kubernetes API, Chaos Controller Manager:Chaos Issuer is deployed with the chaos scenarios mentioned in yaml file of the Issuer
+    Kubernetes API->>Chaos Issuer CLI:choas issuer ready
     Developer->>Chaos Issuer CLI:chaos deploy cert
     Chaos Issuer CLI->>Kubernetes API:kubectl apply certificate
     Kubernetes API->>Cert Manager:creating certificate
@@ -55,5 +62,9 @@ sequenceDiagram
     Kubernetes API-->>Chaos Controller Manager:get controller manager logs
     Chaos Controller Manager-->>Chaos Issuer CLI: show chaos controller-manager logs
     Chaos Issuer CLI-->>Developer: Logs
+    Developer->>Chaos Issuer CLI:chaos terminate
+    Chaos Issuer CLI->>Kubernetes API: kubectl delete cluster
+    Kubernetes API->>Chaos Issuer CLI: cluster deleted
+    Chaos Issuer CLI->>Developer: all resources deleted
 ```
 
