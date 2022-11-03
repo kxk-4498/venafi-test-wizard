@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-logr/logr"
 	"github.com/kxk-4498/Venafi-test-wizard/issuer/signer"
 	"k8s.io/client-go/tools/record"
@@ -35,6 +36,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
+
+var csr1 bool
 
 // CertificateRequestReconciler reconciles a CertificateRequest object
 type CertificateRequestReconciler struct {
@@ -69,12 +72,9 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, err
 	}
 
-	// Check the CertificateRequest's issuerRef and if it does not match the api
-	// group name, log a message at a debug level and stop processing.
-	if cr.Spec.IssuerRef.Group != "" && cr.Spec.IssuerRef.Group != api.GroupVersion.Group {
-		log.V(4).Info("resource does not specify an issuerRef group name that we are responsible for", "group", cr.Spec.IssuerRef.Group)
-		return ctrl.Result{}, nil
-	}
+	/*if !CertificateSigningRequest1.scenario1{
+		cr.Spec.IssuerRef.Group = api.GroupVersion.Group
+	}*/
 
 	//requestShouldBeProcessed is function given below to check for different conditions of Certificate Request
 	shouldProcess, err := r.requestShouldBeProcessed(ctx, log, &cr)
@@ -104,6 +104,14 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	if err := r.Client.Get(ctx, client.ObjectKey{Namespace: req.Namespace, Name: cr.Spec.IssuerRef.Name}, &chaosIssuer); err != nil {
 		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending, "Failed to retrieve chaosIssuer %s/%s: %v", req.Namespace, cr.Spec.IssuerRef.Name, err)
 		return ctrl.Result{}, err
+	}
+
+	csr1 = chaosIssuer.Spec.Scenarios.scenario1
+	// Check the CertificateRequest's issuerRef and if it does not match the api
+	// group name, log a message at a debug level and stop processing.
+	if cr.Spec.IssuerRef.Group != "" && cr.Spec.IssuerRef.Group != api.GroupVersion.Group && !csr1 {
+		log.V(4).Info("resource does not specify an issuerRef group name that we are responsible for", "group", cr.Spec.IssuerRef.Group)
+		return ctrl.Result{}, nil
 	}
 
 	// Check if the ChaosIssuer resource has been marked Ready
