@@ -26,8 +26,14 @@ type ChaosIssuerSpec struct {
 	// SelfSigned configures this issuer to 'self sign' certificates using the
 	// private key used to create the CertificateRequest object.
 	// +optional
-	SelfSigned  *SelfSignedIssuer `json:"selfSigned,omitempty"`
-	CRScenario1 *CSR1             `json:"CRScenario1,omitempty"`
+	SelfSigned *SelfSignedIssuer `json:"selfSigned,omitempty"`
+	Scenarios  *ChaosScenarios   `json:"Scenarios,omitempty"`
+}
+
+// Configures the duration of the sleep scenario
+type ChaosScenarios struct {
+	SleepDuration string `json:"sleepDuration,omitempty"`
+	Scenario1 bool `json:"Scenario1,omitempty"` //Scenario 1: when issuer doesn't belong to request group
 }
 
 // Configures an issuer to 'self sign' certificates using the
@@ -38,10 +44,6 @@ type SelfSignedIssuer struct {
 	// If not set certificate will be issued without CDP. Values are strings.
 	// +optional
 	CRLDistributionPoints []string `json:"crlDistributionPoints,omitempty"`
-}
-
-type CSR1 struct {
-	Scenario1 bool `json:"Scenario1,omitempty"` //Scenario 1: when issuer doesn't belong to request group
 }
 
 // ChaosIssuerStatus defines the observed state of ChaosIssuer
