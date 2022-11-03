@@ -19,6 +19,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/go-logr/logr"
 	"github.com/kxk-4498/Venafi-test-wizard/issuer/signer"
 	"k8s.io/client-go/tools/record"
@@ -35,6 +38,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
+
+// // Declare the sleep scenario duration variable
+var globalSleepDuration int = 0
 
 // CertificateRequestReconciler reconciles a CertificateRequest object
 type CertificateRequestReconciler struct {
@@ -104,6 +110,20 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	if err := r.Client.Get(ctx, client.ObjectKey{Namespace: req.Namespace, Name: cr.Spec.IssuerRef.Name}, &chaosIssuer); err != nil {
 		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending, "Failed to retrieve chaosIssuer %s/%s: %v", req.Namespace, cr.Spec.IssuerRef.Name, err)
 		return ctrl.Result{}, err
+	}
+
+	//Get the sleep duration and force the controller to sleep
+
+	log.V(4).Info("Test log output")
+
+	//globalSleepDuration := 0
+	globalSleepDuration, err = strconv.Atoi(chaosIssuer.Spec.Scenarios.SleepDuration)
+
+	if globalSleepDuration != 0 {
+		log.V(4).Info("default values of the chaos sleep scenario with error %ds: %s", globalSleepDuration, err)
+		time.Sleep(time.Duration(globalSleepDuration) * time.Second)
+		//time.Sleep(time.Duration(globalSleepDuration) * time.Second)
+		//return ctrl.Result{}, nil
 	}
 
 	// Check if the ChaosIssuer resource has been marked Ready
@@ -183,6 +203,10 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	// We set the CA to the returned certificate here since this is self signed.
 	cr.Status.CA = signedPEM
 	// Finally, update the status as signed
+	if globalSleepDuration != 0 {
+		return ctrl.Result{}, r.setStatus(ctx, log, &cr, cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Successfully issued certificate after waiting %ds", globalSleepDuration)
+	}
+
 	return ctrl.Result{}, r.setStatus(ctx, log, &cr, cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Successfully issued certificate")
 }
 

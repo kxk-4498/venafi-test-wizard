@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-logr/logr"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -52,6 +53,13 @@ func (r *ChaosIssuerReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	if err := r.Client.Get(ctx, req.NamespacedName, &chaosIssuer); err != nil {
 		log.Error(err, "failed to retrieve chaosIssuer resource")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	//fills the IssuerSpec with default values
+	defaultBool, err := defaultChaosIssuerSpec(chaosIssuer.Spec)
+	if defaultBool {
+		log.Error(err, "missing parameters were given default values in chaosIssuer yaml config")
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, r.setChaosIssuerStatus(ctx, log, &chaosIssuer, selfsignedissuerv1alpha1.ConditionTrue, "Verified", "Signing ChaosIssuer verified and ready to issue certificates")
@@ -115,6 +123,16 @@ func (r *ChaosIssuerReconciler) setChaosIssuerCondition(log logr.Logger, chaosIs
 	// the new condition into the slice.
 	chaosIssuer.Status.Conditions = append(chaosIssuer.Status.Conditions, newCondition)
 	log.Info("setting lastTransitionTime for chaosIssuer condition", "condition", conditionType, "time", nowTime.Time)
+}
+
+// defaultChaosIssuerSpec function gives default values to parameters not mentioned in the yaml file of the ChoasIssuer
+func defaultChaosIssuerSpec(s selfsignedissuerv1alpha1.ChaosIssuerSpec) (bool, error) {
+	switch {
+	case s.Scenarios.SleepDuration == "":
+		return true, fmt.Errorf("Default value not given for choas sleep scenario!")
+	default:
+		return false, nil
+	}
 }
 
 // SetupWithManager sets up the controller with the Manager.
