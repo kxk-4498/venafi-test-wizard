@@ -40,7 +40,7 @@ import (
 )
 
 // // Declare the sleep scenario duration variable
-var globalSleepDuration int
+var globalSleepDuration int = 0
 
 // CertificateRequestReconciler reconciles a CertificateRequest object
 type CertificateRequestReconciler struct {
@@ -117,10 +117,10 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	log.V(4).Info("Test log output")
 
 	//globalSleepDuration := 0
-	globalSleepDuration = chaosIssuer.Spec.Scenario3.Scenario3Duration
+	globalSleepDuration, err = strconv.Atoi(chaosIssuer.Spec.Scenarios.SleepDuration)
 
 	if globalSleepDuration != 0 {
-		log.V(4).Info(strconv.Itoa(globalSleepDuration))
+		log.V(4).Info("default values of the chaos sleep scenario with error %ds: %s", globalSleepDuration, err)
 		time.Sleep(time.Duration(globalSleepDuration) * time.Second)
 		//time.Sleep(time.Duration(globalSleepDuration) * time.Second)
 		//return ctrl.Result{}, nil
