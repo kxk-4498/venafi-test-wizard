@@ -1,11 +1,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: certificate-by-chaos-issuer3
+  name: certificate-by-chaos-issuer2
 spec:
   commonName: certificate-by-chaos-issuer.chaos.ch
   secretName: certificate-by-chaos-issuer
   issuerRef:
-    name: chaosissuer-scenario3
+    name: chaosissuer-scenario2
     group: self-signed-issuer.chaos.ch
     kind: ChaosIssuer

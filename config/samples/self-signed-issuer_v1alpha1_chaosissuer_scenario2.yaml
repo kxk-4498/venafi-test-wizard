@@ -1,7 +1,7 @@
 apiVersion: self-signed-issuer.chaos.ch/v1alpha1
 kind: ChaosIssuer
 metadata:
-  name: chaosissuer-scenario3
+  name: chaosissuer-scenario2
 spec:
   selfSigned: {}
   Scenarios:
