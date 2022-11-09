@@ -63,6 +63,68 @@ This project aims to follow the Kubernetes [Operator pattern](https://kubernetes
 It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/) 
 which provides a reconcile function responsible for synchronizing resources untile the desired state is reached on the cluster 
 
+# Running cert-manager locally with very less certificate duration modification#
+**Note:** We hold no intellectual property of cert-manager resources and are merely using a modified local version for manual testing of our testing wizard.
+**Resources:** [Building cert-manager](https://cert-manager.io/docs/contributing/building/ ), [Developing with Kind](https://cert-manager.io/docs/contributing/kind/)
+
+1. create a folder outside this github directory
+
+```sh
+mkdir cert-manager-local
+cd cert-manager-local
+```
+
+2. git clone cert-manager
+
+```sh
+git clone https://github.com/cert-manager/cert-manager.git
+```
+
+3. Make sure you have all dependencies installed which are git, curl, GNU make, jq, docker and go.
+
+4. go inside cert-manager git repository you cloned.
+```sh
+cd cert-manager
+```
+
+5. For modifying the certificate duration and renew before time:
+- go inside cert-manager/internal/apis/certmanager/validation/certificate.go
+- replace the ValidateDuration function to the one given below.
+- the function below changes the minimum cert duration of cert-manager to 4 minutes and mininum certificate renewal time to 2 minutes.
+
+```sh
+func ValidateDuration(crt *internalcmapi.CertificateSpec, fldPath *field.Path) field.ErrorList {
+    el := field.ErrorList{}
+    duration := util.DefaultCertDuration(crt.Duration)
+    MinimumCertificateDuration := time.Minute * 4
+    MinimumRenewBefore := time.Minute * 2
+    if duration < MinimumCertificateDuration { //was cmapi.MinimumCertificateDuration
+        el = append(el, field.Invalid(fldPath.Child("duration"), duration, fmt.Sprintf("certificate duration must be greater than %s", MinimumCertificateDuration))) // was  cmapi.MinimumCertificateDuration
+    }
+    // If spec.renewBefore is set, check that it is not less than the minimum.
+    if crt.RenewBefore != nil && crt.RenewBefore.Duration < MinimumRenewBefore { //was cmapi.MinimumRenewBefore
+        el = append(el, field.Invalid(fldPath.Child("renewBefore"), crt.RenewBefore.Duration, fmt.Sprintf("certificate renewBefore must be greater than %s", MinimumRenewBefore))) // was cmapi.MinimumRenewBefore
+    }
+    // If spec.renewBefore is set, it must be less than the duration.
+    if crt.RenewBefore != nil && crt.RenewBefore.Duration >= duration {
+        el = append(el, field.Invalid(fldPath.Child("renewBefore"), crt.RenewBefore.Duration, fmt.Sprintf("certificate duration %s must be greater than renewBefore %s", duration, crt.RenewBefore.Duration)))
+    }
+    return el
+}
+```
+
+6. Run cert-manager using this command (our Chaos Issuer runs on K8S_VERSION=1.25). This command will deploy a kind cluster nameed kind and deploy cert-manager resources in it:
+
+ ```sh
+ make K8S_VERSION=1.25 e2e-setup-kind e2e-setup-certmanager
+ ```
+**Note:** Running cert-manager locally takes 3-5 minutes to successfully deploy.
+
+7. Deploy cert-manager CRDs
+```sh
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.crds.yaml
+```
+
 # Test It Out using Script #
 0. Run the script
 
