@@ -89,6 +89,7 @@ cd cert-manager
 
 5. For modifying the certificate duration and renew before time:
 - go inside cert-manager/internal/apis/certmanager/validation/certificate.go
+- import "time" module in certificate.go
 - replace the ValidateDuration function to the one given below.
 - the function below changes the minimum cert duration of cert-manager to 4 minutes and mininum certificate renewal time to 2 minutes.
 
