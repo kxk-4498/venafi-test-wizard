@@ -164,6 +164,25 @@ make manifests
 
 More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
 
+
+# Run cert-manager #
+
+Use cert-manager's Go
+```
+make vendor-go
+```
+Change to system Go version
+
+```
+make unvendor-go
+```
+Deploy cert-manager on kind
+
+```
+make e2e-setup-kind e2e-setup-certmanager
+```
+
+
 # Chaos Scenarios #
 
 ## Network Chaos ##
