@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+data:
+  mysql.cnf: |-
+    [mysqld]
+    ssl-ca=ca.crt
+    ssl-cert=tls.crt
+    ssl-key=tls.key
+    require_secure_transport=ON   ## This line is the only setting required to enforce secure connections    

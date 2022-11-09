@@ -29,20 +29,15 @@ spec:
         - name: mysql-persistent-storage
           mountPath: /var/lib/mysql
       volumes:
-      - name: mysql-persistent-storage
-        persistentVolumeClaim:
-          claimName: mysql-pv-claim
-      - name: config-volume
-        configMap:
-          metadata:
-            name: mysql-config
-            data:
-              mysql.cnf: |-
-                [mysqld]
-                ssl-ca=ca.crt
-                ssl-cert=tls.crt
-                ssl-key=tls.key
-                require_secure_transport=ON   ## This line is the only setting required to enforce secure connections    
+        - name: config-volume
+          configMap:
+            # Provide the name of the ConfigMap containing the files you want
+            # to add to the container
+            name: test
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-pv-claim
+---
 apiVersion: v1
 kind: Service
 metadata:
