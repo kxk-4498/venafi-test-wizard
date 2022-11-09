@@ -74,7 +74,9 @@ func (r *ChaosIssuerReconciler) setChaosIssuerStatus(ctx context.Context, log lo
 	if status == selfsignedissuerv1alpha1.ConditionFalse {
 		eventType = core.EventTypeWarning
 	}
-	r.Recorder.Event(chaosIssuer, eventType, reason, completeMessage)
+	messageNew := fmt.Sprintf("chaos scenario variable values for the deployed Chaos Issuer now are:- 1. sleepDuration:%s, 2. Scenario1:%s, 3. Scenario2:%s", chaosIssuer.Spec.Scenarios.SleepDuration, chaosIssuer.Spec.Scenarios.Scenario1, chaosIssuer.Spec.Scenarios.Scenario2)
+	finalCompleteMessage := fmt.Sprintf(completeMessage, messageNew)
+	r.Recorder.Event(chaosIssuer, eventType, reason, finalCompleteMessage)
 
 	// Actually update the issuer resource
 	return r.Client.Status().Update(ctx, chaosIssuer)
