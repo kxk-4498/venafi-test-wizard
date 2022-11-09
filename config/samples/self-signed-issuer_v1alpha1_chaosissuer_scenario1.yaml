@@ -6,5 +6,5 @@ spec:
   selfSigned: {}
   Scenarios:
     sleepDuration: "0"
-    Scenario1: "True"
+    Scenario1: "False"
     Scenario2: "False"

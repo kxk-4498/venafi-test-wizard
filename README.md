@@ -165,7 +165,13 @@ make manifests
 More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
 
 
-# Run cert-manager #
+# Run our modified version of cert-manager locally #
+**Note:** We hold no intellectual property of cert-manager resources and are merely using a modified local version for manual testing of our testing wizard.
+**Resources:** [Building cert-manager](https://cert-manager.io/docs/contributing/building/ ), [Developing with Kind](https://cert-manager.io/docs/contributing/kind/)
+
+For modifying the certificate duration and renew before time:
+1. go inside cert-manager/internal/apis/certmanager/validation/certificate.go 
+2. make changes to duration and cmapi.MinimumRenewBefore variables inside ValidateDuration function
 
 Use cert-manager's Go
 ```
