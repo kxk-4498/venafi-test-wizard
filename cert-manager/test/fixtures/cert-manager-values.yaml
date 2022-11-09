@@ -1,0 +1,49 @@
+replicaCount: 1
+
+global:
+  logLevel: "4"
+  podSecurityPolicy:
+    enabled: true
+
+image:
+  tag: build
+  pullPolicy: Never
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 200Mi
+  limits:
+    cpu: 1
+    memory: 200Mi
+
+extraArgs:
+- --leader-election-lease-duration=10s
+- --leader-election-renew-deadline=3s
+- --leader-election-retry-period=2s
+
+webhook:
+  enabled: true
+  image:
+    tag: build
+    pullPolicy: Never
+  resources:
+    requests:
+      cpu: 100m
+      memory: 40Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+cainjector:
+  enabled: true
+  image:
+    tag: build
+    pullPolicy: Never
+  resources:
+    requests:
+      cpu: 100m
+      memory: 40Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
