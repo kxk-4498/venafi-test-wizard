@@ -227,6 +227,31 @@ make manifests
 
 More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
 
+
+# Deploy webapp #
+Sign a certificate using chaos-issuer
+
+```
+kubectl apply -f ./test-app/webapp/k8s.yaml
+```
+
+Check secret and certificate
+
+```
+kubectl exec --stdin --tty webapp -- /bin/bash
+ls
+```
+Certificate: localhost.crt
+
+Key: localhost.key
+
+Test the app
+```
+kubectl port-forward webapp 9000:9000
+```
+
+Navigate to https://localhost:9000/
+
 # Chaos Scenarios #
 
 ## Network Chaos ##
