@@ -1,0 +1,10 @@
+apiVersion: self-signed-issuer.chaos.ch/v1alpha1
+kind: ChaosIssuer
+metadata:
+  name: chaosissuer-scenario
+spec:
+  selfSigned: {}
+  Scenarios:
+    sleepDuration: "450"
+    Scenario1: "False"
+    Scenario2: "False"

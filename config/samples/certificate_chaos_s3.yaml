@@ -5,6 +5,8 @@ metadata:
 spec:
   commonName: certificate-by-chaos-issuer.chaos.ch
   secretName: certificate-by-chaos-issuer
+  duration: 4m
+  renewBefore: 2m
   issuerRef:
     name: chaosissuer-scenario3
     group: self-signed-issuer.chaos.ch
