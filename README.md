@@ -229,23 +229,30 @@ More information can be found via the [Kubebuilder Documentation](https://book.k
 
 
 # Deploy webapp #
-Sign a certificate using chaos-issuer
+Sign a certificate using chaos-issuer by following the steps above
 
+To deploy the webapp on Kubernetes
 ```
 kubectl apply -f ./test-app/webapp/k8s.yaml
 ```
 
-Check secret and certificate
+To check the secret from the certificate issued in the previous step
 
+Get a bash for the webapp
 ```
 kubectl exec --stdin --tty webapp -- /bin/bash
+```
+
+The directory where the secrets are stored is /app/
+```
 ls
 ```
+
 Certificate: localhost.crt
 
 Key: localhost.key
 
-Test the app
+The app is running at port 9000, to test the app we need to forward the ports.
 ```
 kubectl port-forward webapp 9000:9000
 ```
