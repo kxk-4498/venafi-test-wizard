@@ -1,20 +1,21 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: njj-ingress
-  namespace: njj-test
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
+  name: kuard
 spec:
+  tls:
+  - hosts:
+    - example.example.com
+    secretName: certificate-by-chaos-issuer
   rules:
-  - host: njj.com
+  - host: example.example.com
     http:
       paths:
       - path: /
-        pathType: Exact  
+        pathType: Prefix
         backend:
           service:
-            name: nginx-service
-            port: 
-              number: 80
+            name: kuard
+            port:
+              number: 8888
 

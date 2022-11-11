@@ -1,22 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
-  namespace: njj-test
-  labels:
-    app: nginx
+  name: kuard
 spec:
-  replicas: 2
   selector:
     matchLabels:
-      app: nginx
+      app: kuard
+  replicas: 1
   template:
     metadata:
       labels:
-        app: nginx
+        app: kuard
     spec:
       containers:
-      - name: nginx
-        image: nginx:1.16
+      - image: gcr.io/kuar-demo/kuard-amd64:1
+        imagePullPolicy: Always
+        name: kuard
         ports:
         - containerPort: 8080
