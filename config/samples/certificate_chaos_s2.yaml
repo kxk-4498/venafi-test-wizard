@@ -2,10 +2,15 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: certificate-by-chaos-issuer2
+  namespace: chaos
 spec:
   commonName: certificate-by-chaos-issuer.chaos.ch
-  secretName: certificate-by-chaos-issuer
+  secretName: certificate-by-chaos-issuer-2
+  duration: 4m
+  renewBefore: 2m
+  dnsNames:
+    - example.chaos.test
   issuerRef:
-    name: chaosissuer-scenario2
+    name: chaosissuer-scenario3
     group: self-signed-issuer.chaos.ch
     kind: ChaosIssuer

@@ -2,13 +2,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: kuard
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
 spec:
   tls:
   - hosts:
-    - example.example.com
-    secretName: certificate-by-chaos-issuer
+    - example.chaos.test
+    secretName: certificate-by-chaos-issuer-2
   rules:
-  - host: example.example.com
+  - host: example.chaos.test
     http:
       paths:
       - path: /
@@ -17,5 +19,5 @@ spec:
           service:
             name: kuard
             port:
-              number: 8888
+              number: 80
 

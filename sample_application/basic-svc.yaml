@@ -4,8 +4,8 @@ metadata:
   name: kuard
 spec:
   ports:
-  - port: 8888
-    targetPort: 8080
+  - port: 80
+    targetPort: 8888
     protocol: TCP
   selector:
     app: kuard

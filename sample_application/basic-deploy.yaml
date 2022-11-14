@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kuard
+  labels:
+    app: kuard
 spec:
   selector:
     matchLabels:
@@ -17,4 +19,4 @@ spec:
         imagePullPolicy: Always
         name: kuard
         ports:
-        - containerPort: 8080
+        - containerPort: 8888
