@@ -1,22 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kuard
+  name: example-deploy
   labels:
-    app: kuard
+    app: example-app
+    test: test
+  annotations:
+    fluxcd.io/tag.example-app: semver:~1.0
+    fluxcd.io/automated: 'true'
 spec:
   selector:
     matchLabels:
-      app: kuard
+      app: example-app
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
-        app: kuard
+        app: example-app
     spec:
       containers:
-      - image: gcr.io/kuar-demo/kuard-amd64:1
+      - name: example-app
+        image: aimvector/python:1.0.4
         imagePullPolicy: Always
-        name: kuard
         ports:
-        - containerPort: 8888
+        - containerPort: 5000
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+      tolerations:
+      - key: "cattle.io/os"
+        value: "linux"
+        effect: "NoSchedule"      
