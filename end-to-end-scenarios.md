@@ -33,7 +33,7 @@ sequenceDiagram
     participant Kubernetes API
     participant Cert Manager
     participant Chaos Controller Manager
-    participant Application
+    participant Web-Application
     Cert Manager->>Cert Manager:Signed certificate exists in secret
     Note right of Cert Manager: certificate valid for 10 mins
     Application->>Cert Manager:Use certificate to function successfully
