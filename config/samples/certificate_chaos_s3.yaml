@@ -5,7 +5,7 @@ metadata:
 spec:
   commonName: certificate-by-chaos-issuer.chaos.ch
   secretName: certificate-by-chaos-issuer
-  duration: 15m
+  duration: 10m
   renewBefore: 2m
   dnsNames:
     - example.chaos.test

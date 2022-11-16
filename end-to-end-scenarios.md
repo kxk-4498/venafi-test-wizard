@@ -35,7 +35,7 @@ sequenceDiagram
     participant Chaos Controller Manager
     participant Application
     Cert Manager->>Cert Manager:Signed certificate exists in secret
-    Note right of Cert Manager: certificate valid for 30 mins
+    Note right of Cert Manager: certificate valid for 10 mins
     Application->>Cert Manager:Use certificate to function successfully
     Developer->>Chaos Issuer CLI:chaos deploy issuer scenario 3
     Chaos Issuer CLI->>Kubernetes API:kubectl apply chaos issuer
@@ -49,7 +49,7 @@ sequenceDiagram
     Cert Manager-->>Cert Manager:reusing temp private key
     Cert Manager-->>Cert Manager:creating certificate request using key and certificate
     Cert Manager->>Chaos Controller Manager:sending certificate request 
-    Chaos Controller Manager->>Chaos Controller Manager:sleep for 1 hour
+    Chaos Controller Manager->>Chaos Controller Manager:sleep for 10 mins
     Cert Manager->>Cert Manager: certificate expired
     Note over Application, Cert Manager: Unable to use expired certificate, application unable to use HTTPS.
     Chaos Controller Manager->>E:Fetching Logs
@@ -59,7 +59,7 @@ sequenceDiagram
     E->>Chaos Issuer CLI:Report Sent
     Developer->>Chaos Issuer CLI: chaos show report scenario 3
     Chaos Issuer CLI->>Developer: showing report
-    Chaos Controller Manager->>Cert Manager:certificate request signed after sleeping for 1 hour
+    Chaos Controller Manager->>Cert Manager:certificate request signed after sleeping for 10 mins
     Cert Manager->>Kubernetes API:Certificate renewed
     Application->>Cert Manager:Using renewed certificate to function successfully
 ```
