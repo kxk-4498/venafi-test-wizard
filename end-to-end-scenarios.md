@@ -41,9 +41,8 @@ sequenceDiagram
     Chaos Issuer CLI->>Kubernetes API:kubectl apply chaos issuer
     Kubernetes API->>Chaos Controller Manager:create chaos issuer
     Chaos Controller Manager->>Kubernetes API:choas issuer ready
-    Note over Kubernetes API, Chaos Controller Manager:Chaos Issuer is deployed with the chaos scenario flag in yaml file of Issuer or using Choas Issuer CLI command
     Kubernetes API->>Chaos Issuer CLI:choas issuer ready
-    Note over Chaos Issuer CLI,Kubernetes API:End Script Scenario Triggered as conditions of existing signed certificate and issuer deployed with sleeping flag are met.
+    Note over E,Kubernetes API:End Script Scenario Triggered
     E->>Kubernetes API:cmctl renew certificate
     Kubernetes API->>Cert Manager:renewng certificate
     Cert Manager-->>Cert Manager:reusing temp private key
