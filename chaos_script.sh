@@ -13,7 +13,7 @@ do
         read -ra arr <<< "$command"
 
         #Switch case
-        case "${arr[1]]}" in
+        case "${arr[1]}" in
         #Command Help
         "help") 
         echo "Allowed commands: "
@@ -36,7 +36,20 @@ do
         #echo "Installing cert-manager ... "
         #kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.yaml
         echo "############################################################################" 
-        echo "Installing chaos issuer ... "
+        echo "Setting up Ingress... "
+        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/cloud/deploy.yaml
+        sleep 60
+        kubectl -n ingress-nginx --address 0.0.0.0 port-forward svc/ingress-nginx-controller 80 &> output_port_80.log &
+        kubectl -n ingress-nginx --address 0.0.0.0 port-forward svc/ingress-nginx-controller 443 &> output_port_443.log &
+        
+        echo "Setting up deployment... "
+        kubectl apply -f ./application/basic-deploy.yaml
+        echo "Setting up service... "
+        kubectl apply -f ./application/basic-svc.yaml
+        echo "Setting up ingress... "
+        kubectl apply -f ./application/basic-ingress.yaml
+        echo "############################################################################" 
+        echo "Setting up environment for chaos issuer ... "
         make generate manifests
         go mod tidy
         make install
@@ -53,40 +66,41 @@ do
         yq '.spec.Scenarios.Scenario2 |= "False"' config/samples/issuer.yaml > temp.yaml  
         rm config/samples/issuer.yaml
         mv temp.yaml config/samples/issuer.yaml
-        kubectl create namespace chaos
-        kubectl apply -f config/samples/issuer.yaml -n chaos
-        echo "Installed chaos issuer in the newly created chaos namespace. Environment setup complete :) "
+        #kubectl create namespace chaos
+        kubectl apply -f config/samples/issuer.yaml 
+        #-n chaos
+        echo "Installed chaos issuer. Environment setup complete :) "
         echo "############################################################################"  
         echo ""
         ;;
 
-
-        
         "deploy")
         #Installing the issuer.
-        if [ ${arr[2]]} == "issuer" ]
+        if [ ${arr[2]} == "issuer" ]
         then
                 echo "############################################################################" 
                 echo "Namesapces available :"
                 kubectl get namespaces
                 echo "############################################################################" 
-                read -p "What namespace would you like to use? " ns_name
+                #read -p "What namespace would you like to use? " ns_name
                 yq ".spec.Scenarios.sleepDuration |= ${arr[4]]}" config/samples/issuer.yaml > temp.yaml  
                 rm config/samples/issuer.yaml
                 mv temp.yaml config/samples/issuer.yaml
-                kubectl apply -f config/samples/issuer.yaml -n $ns_name
+                kubectl apply -f config/samples/issuer.yaml 
+                #-n $ns_name
                 echo "Issuers running: "
-                kubectl get ChaosIssuer -n $ns_name
+                kubectl get ChaosIssuer 
+                #-n $ns_name
                 echo ""
 
         #Installing the certificate.       
-        elif [ ${arr[2]]} == "cert" ]
+        elif [ ${arr[2]} == "cert" ]
         then
             echo "############################################################################" 
             echo "Namesapces available :"
             kubectl get namespaces
             echo "############################################################################" 
-            read -p "What namespace would you like to use? " ns_name 
+            #read -p "What namespace would you like to use? " ns_name 
 
             echo "Creating certificate ..."
             yq ".metadata.name |= ${arr[3]]}" config/samples/cert.yaml > temp.yaml  
@@ -98,7 +112,8 @@ do
             yq ".spec.renewBefore |= ${arr[5]]}" config/samples/cert.yaml > temp.yaml 
             rm config/samples/cert.yaml
             mv temp.yaml config/samples/cert.yaml
-            kubectl apply -f config/samples/cert.yaml -n $ns_name
+            kubectl apply -f config/samples/cert.yaml 
+            #-n $ns_name
             echo ""
         fi
         ;;
@@ -110,9 +125,10 @@ do
         echo "Namesapces available :"
         kubectl get namespaces
         echo "############################################################################" 
-        read -p "What namespace would you like to use? " ns_name 
+        #read -p "What namespace would you like to use? " ns_name 
         echo "Getting certificates ..."
-        kubectl get certificates -n $ns_name 
+        kubectl get certificates 
+        #-n $ns_name 
         echo ""
         ;;
 
@@ -120,7 +136,7 @@ do
         "get")
         echo "############################################################################" 
         echo "Generating report .."
-        cat output.log | python e2e_script.py
+        cat output.log | python3 e2e_script.py
         echo "Result pdf created"
         echo ""
         ;;
@@ -135,6 +151,8 @@ do
         read -p "Name of your cluster: " cluster_name 
         echo "Terminating process ..." 
         kill -9 $( lsof -i :8080 -t )
+        kill -9 $( lsof -i :80 -t )
+        kill -9 $( lsof -i :443 -t )
         kind delete cluster --name $cluster_name 
         exit 0
         ;;

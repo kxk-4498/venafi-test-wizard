@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+  name: example-app
+spec:
+  tls:
+  - hosts:
+    - example.chaos.test
+    secretName: certificate-by-chaos-issuer
+  rules:
+  - host: example.chaos.test
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service: 
+            name: example-service
+            port: 
+              number: 80
