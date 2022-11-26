@@ -234,34 +234,38 @@ More information can be found via the [Kubebuilder Documentation](https://book.k
 1. Inject network delay inside Kubernetes Cluster 
 > This test will simulate network delays between the pod Cert-manager runs on and the pod the certificate needs to renew. The user can set the network latency value , latency offset (allow the latency to fluctuate) and the duration of the test.
 
-> A sample configuration file sets the latency to 1000 ms, offset to 200ms, making the latency to fluctuate between 800ms and 1200 ms, and duration to 10 minute is shown below
+> A sample configuration file sets the network delay to 1000ms is shown below
 ```
 apiVersion: self-signed-issuer.chaos.ch/v1alpha1
 kind: ChaosIssuer
 metadata:
-  name: chaosissuer-sample-network-delay
+  name: chaosissuer-scenario2
 spec:
-    action: delay
-    delay:
-	  latency: '1000ms' 
-	  offset: '200ms'
-	  duration: '10min'
+  selfSigned: {}
+  Scenarios:
+    sleepDuration: "0"
+    Scenario1: "False"
+    Scenario2: "False"
+	networkDelay: "1000" 
 ```
 
 2. Inject packet loss inside Kubernets Cluster
 > This test will simulate packet loss between the pod Cert-manager runs on and the pod the certificate needs to renew. The user can set perecntage of packet loss  and the duration of the test.
 
-> A sample configuration file sets the packet loss percentage to 50 percet,  and duration to 10 minute is shown below
+> A sample configuration file sets the packet loss percentage to 50 percet is shown below
 ```
 apiVersion: self-signed-issuer.chaos.ch/v1alpha1
 kind: ChaosIssuer
 metadata:
-  name: chaosissuer-sample-packet-loss
+  name: chaosissuer-scenario2
 spec:
-    action: loss
-    loss:
-	  percentage: '50' 
-	  duration: '10min'
+  selfSigned: {}
+  Scenarios:
+    sleepDuration: "0"
+    Scenario1: "False"
+    Scenario2: "False"
+	networkDelay: "0" 
+	packetLoss: "50"
 ```
 
 ## CertificateRequest Controller Chaos ##
@@ -279,6 +283,19 @@ In the Chaos Issuer, the CertificateRequest Controller will function in a abnorm
 		log.Info("Foreign group. Ignoring.", "group", certificateRequest.Spec.IssuerRef.Group)
 		return ctrl.Result{}, nil
 	}
+```
+> A sample configuration file enables this test is shown below
+```
+apiVersion: self-signed-issuer.chaos.ch/v1alpha1
+kind: ChaosIssuer
+metadata:
+  name: chaosissuer-scenario2
+spec:
+  selfSigned: {}
+  Scenarios:
+    sleepDuration: "0"
+    Scenario1: "True"
+    Scenario2: "False"
 ```
 
 2. Set `Ready = Signed` when CertificateRequest has been denied
@@ -315,6 +332,19 @@ In the Chaos Issuer, the CertificateRequest Controller will function in a abnorm
 	setReadyCondition(cmmeta.ConditionTrue, cmapi.CertificateRequestReasonIssued, "Signed")
 	return ctrl.Result{}, nil
 ```
+> A sample configuration file enables this test is shown below
+```
+apiVersion: self-signed-issuer.chaos.ch/v1alpha1
+kind: ChaosIssuer
+metadata:
+  name: chaosissuer-scenario2
+spec:
+  selfSigned: {}
+  Scenarios:
+    sleepDuration: "0"
+    Scenario1: "False"
+    Scenario2: "True"
+```
 
 3. Force the controller to sleep periodically
 
@@ -331,7 +361,25 @@ spec:
   Scenarios:
     sleepDuration: "10"
 ```
-## License
+> A sample configuration file set sleep time to 20 secondes test is shown below
+```
+apiVersion: self-signed-issuer.chaos.ch/v1alpha1
+kind: ChaosIssuer
+metadata:
+  name: chaosissuer-scenario2
+spec:
+  selfSigned: {}
+  Scenarios:
+    sleepDuration: "20"
+    Scenario1: "False"
+    Scenario2: "True"
+```
+## Code Walkthrough  ##
+
+
+
+
+## License  ##
 
 Copyright 2022 CMU-SV.
 
