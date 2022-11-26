@@ -1,0 +1,22 @@
+test -s /Users/naveen28/Documents/cert-venafi/Venafi-test-wizard/bin/controller-gen || GOBIN=/Users/naveen28/Documents/cert-venafi/Venafi-test-wizard/bin go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.9.2
+/Users/naveen28/Documents/cert-venafi/Venafi-test-wizard/bin/controller-gen rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+/Users/naveen28/Documents/cert-venafi/Venafi-test-wizard/bin/controller-gen object:headerFile="hack/boilerplate.go.txt" paths="./..."
+go fmt ./...
+go vet ./...
+go run ./main.go
+1.668680774191794e+09	INFO	controller-runtime.metrics	Metrics server is starting to listen	{"addr": ":8080"}
+1.668680774192224e+09	INFO	setup	starting manager
+1.668680774192522e+09	INFO	Starting server	{"path": "/metrics", "kind": "metrics", "addr": "[::]:8080"}
+1.6686807741927161e+09	INFO	Starting EventSource	{"controller": "chaosissuer", "controllerGroup": "self-signed-issuer.chaos.ch", "controllerKind": "ChaosIssuer", "source": "kind source: *v1alpha1.ChaosIssuer"}
+1.6686807741927192e+09	INFO	Starting EventSource	{"controller": "certificaterequest", "controllerGroup": "cert-manager.io", "controllerKind": "CertificateRequest", "source": "kind source: *v1.CertificateRequest"}
+1.668680774192768e+09	INFO	Starting Controller	{"controller": "chaosissuer", "controllerGroup": "self-signed-issuer.chaos.ch", "controllerKind": "ChaosIssuer"}
+1.668680774192796e+09	INFO	Starting Controller	{"controller": "certificaterequest", "controllerGroup": "cert-manager.io", "controllerKind": "CertificateRequest"}
+1.6686807742940958e+09	INFO	Starting workers	{"controller": "certificaterequest", "controllerGroup": "cert-manager.io", "controllerKind": "CertificateRequest", "worker count": 1}
+1.668680774294146e+09	INFO	Starting workers	{"controller": "chaosissuer", "controllerGroup": "self-signed-issuer.chaos.ch", "controllerKind": "ChaosIssuer", "worker count": 1}
+1.6686807742949178e+09	INFO	controllers.ChaosIssuer	setting lastTransitionTime for chaosIssuer condition	{"chaosIssuer": "default/chaosissuer-scenario", "condition": "Ready", "time": 1668680774.294915}
+1.668680774295239e+09	DEBUG	events	Signing ChaosIssuer verified and ready to issue certificates%!(EXTRA string=chaos scenario variable values for the deployed Chaos Issuer now are:- 1. sleepDuration:0, 2. Scenario1:False, 3. Scenario2:False)	{"type": "Normal", "object": {"kind":"ChaosIssuer","namespace":"default","name":"chaosissuer-scenario","uid":"4d695670-d98d-4c97-9432-3044d76e67e6","apiVersion":"self-signed-issuer.chaos.ch/v1alpha1","resourceVersion":"1488"}, "reason": "Verified"}
+1.668680774320947e+09	DEBUG	events	Signing ChaosIssuer verified and ready to issue certificates%!(EXTRA string=chaos scenario variable values for the deployed Chaos Issuer now are:- 1. sleepDuration:0, 2. Scenario1:False, 3. Scenario2:False)	{"type": "Normal", "object": {"kind":"ChaosIssuer","namespace":"default","name":"chaosissuer-scenario","uid":"4d695670-d98d-4c97-9432-3044d76e67e6","apiVersion":"self-signed-issuer.chaos.ch/v1alpha1","resourceVersion":"1506"}, "reason": "Verified"}
+1.6686808257258701e+09	INFO	controllers.CertificateRequest	Successfully issued certificate	{"certificaterequests": "default/my-cert-shcvd"}
+1.668680825725939e+09	DEBUG	events	Successfully issued certificate	{"type": "Normal", "object": {"kind":"CertificateRequest","namespace":"default","name":"my-cert-shcvd","uid":"03a0c369-1380-42d6-9b11-2782ed52b545","apiVersion":"cert-manager.io/v1","resourceVersion":"1672"}, "reason": "Issued"}
+signal: killed
+make: *** [run] Error 1

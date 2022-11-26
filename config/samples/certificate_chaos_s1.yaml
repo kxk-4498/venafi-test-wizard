@@ -6,6 +6,6 @@ spec:
   commonName: certificate-by-chaos-issuer.chaos.ch
   secretName: certificate-by-chaos-issuer
   issuerRef:
-    name: chaosissuer-sample
+    name: chaosissuer-scenario1
     group: self-signed-issuer.chaos.ch
     kind: ChaosIssuer
