@@ -63,7 +63,7 @@ This project aims to follow the Kubernetes [Operator pattern](https://kubernetes
 It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/) 
 which provides a reconcile function responsible for synchronizing resources untile the desired state is reached on the cluster 
 
-# Running cert-manager locally with very less certificate duration modification#
+# Running cert-manager locally with very less certificate duration modification #
 **Note:** We hold no intellectual property of cert-manager resources and are merely using a modified local version for manual testing of our testing wizard.
 **Resources:** [Building cert-manager](https://cert-manager.io/docs/contributing/building/ ), [Developing with Kind](https://cert-manager.io/docs/contributing/kind/)
 
@@ -375,8 +375,110 @@ spec:
     Scenario2: "True"
 ```
 ## Code Walkthrough  ##
+Our test wizzard is build on top of Cert-manager's sample external issuer https://github.com/cert-manager/sample-external-issuer.git
 
+We added several CRDs into Kubernetes to support our Test Wizzard, the code can be found in `Venafi-test-wizard/api/v1alpha1/chaosissuer_types.go`. The code below shows how our CRDs are defined. 
 
+A new struct called `ChaosScenarios` is defined to hold our chaos scenarios. `ChaosScenarios` contains three variables: `SleepDuration`, `Scenario1` and `Scenario2`. `SleepDuration` takes an integer while `Scenario1` and `Scenario2` take a boolean value. `ChaosScenarios` is then passed into `ChaosIssuerSpec` to support our yaml configurations.
+```
+// Code from ./api/v1alpha1/chaosissuer_types.go
+
+type ChaosIssuerSpec struct {
+
+	SelfSigned *SelfSignedIssuer `json:"selfSigned,omitempty"`
+	Scenarios  *ChaosScenarios   `json:"Scenarios"`
+}
+
+type ChaosScenarios struct {
+	SleepDuration string `json:"sleepDuration"`
+	Scenario1     string `json:"Scenario1"` //Scenario 1: when issuer doesn't belong to request group
+	Scenario2     string `json:"Scenario2"` //Scenario 2: Set Ready = Signed when CertificateRequest has been denied
+}
+```
+
+The code for our chaos scenarois can be found in `Venafi-test-wizard/controllers/certificaterequest_controller.go`.
+
+The code shown below fetches the values inside the yaml file passed in and stores them in an object called `chaosIssuer`.
+
+```
+func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ctrl.Result, err error) {
+	log := r.Log.WithValues("certificaterequests", req.NamespacedName)
+
+	// Fetch the CertificateRequest resource being reconciled.
+	// Just ignore the request if the certificate request has been deleted.
+	cr := cmapi.CertificateRequest{}
+	if err := r.Client.Get(ctx, req.NamespacedName, &cr); err != nil {
+		if apierrors.IsNotFound(err) {
+			return ctrl.Result{}, nil
+		}
+		log.Error(err, "failed to retrieve CertificateRequest resource")
+		return ctrl.Result{}, err
+	}
+
+	chaosIssuer := api.ChaosIssuer{}
+	if err := r.Client.Get(ctx, client.ObjectKey{Namespace: req.Namespace, Name: cr.Spec.IssuerRef.Name}, &chaosIssuer); err != nil {
+		err := r.setStatus(ctx, log, &cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonPending, "Failed to retrieve chaosIssuer %s/%s: %v", req.Namespace, cr.Spec.IssuerRef.Name, err)
+		return ctrl.Result{}, err
+	}
+```
+
+This block of codes extracts the CertificateRequest Controller Chaos values from `chaosIssuer` and stores them in two local variables called `csr1` and `csr2`.
+
+Scenario 1: when issuer doesn't belong to request group.
+
+Scenario 2: Set Ready = Signed when CertificateRequest has been denied
+```
+
+	csr1, err = strconv.ParseBool(chaosIssuer.Spec.Scenarios.Scenario1)
+	if err != nil {
+		log.Error(err, "failure")
+	}
+
+	csr2, err = strconv.ParseBool(chaosIssuer.Spec.Scenarios.Scenario2)
+	if err != nil {
+		log.Error(err, "failure")
+	}
+
+```
+The code below checks the whether `csr1` is set to True. If `csr1` is set to True, the code will omit the request group and issuer group check and issue the certificate anyway.
+
+```
+	// Check the CertificateRequest's issuerRef and if it does not match the api
+	// group name, log a message at a debug level and stop processing.
+	log.V(4).Info("Scenario1 check if value csr1 is True. csr1:%t", csr1)
+	if !csr1 {
+		if cr.Spec.IssuerRef.Group != "" && cr.Spec.IssuerRef.Group != api.GroupVersion.Group {
+			log.V(4).Info("resource does not specify an issuerRef group name that we are responsible for", "group", cr.Spec.IssuerRef.Group)
+			return ctrl.Result{}, nil
+		}
+	}
+```
+The code below checks the whether `csr2` is set to True. If `csr2` is set to True, the code will always set Ready = Signed when CertificateRequest has been denied.
+```
+	//requestShouldBeProcessed is function given below to check for different conditions of Certificate Request
+	log.V(4).Info("Scenario2 check if value csr1 is True. csr2:%t", csr2)
+	if !csr2 {
+		shouldProcess, err := r.requestShouldBeProcessed(ctx, log, &cr)
+		if err != nil || !shouldProcess {
+			return ctrl.Result{}, err
+		}
+	}
+```
+
+The code below fetches the sleep time from `chaosIssuer` and cast the value into a integer called `globalSleepDuration`. Then the code will manually sleep for x secondes based on `globalSleepDuration`. 
+```
+	globalSleepDuration, err = strconv.Atoi(chaosIssuer.Spec.Scenarios.SleepDuration)
+	if err != nil {
+		log.Error(err, "failure")
+	}
+
+	if globalSleepDuration != 0 {
+		log.V(4).Info("default values of the chaos sleep scenario with error %ds: %s", globalSleepDuration, err)
+		time.Sleep(time.Duration(globalSleepDuration) * time.Second)
+		//time.Sleep(time.Duration(globalSleepDuration) * time.Second)
+		//return ctrl.Result{}, nil
+	}
+```
 
 
 ## License  ##
