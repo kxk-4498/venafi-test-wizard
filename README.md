@@ -163,6 +163,53 @@ chaos show cert
 chaos terminate
 ```
 
+# CLI Script #
+
+Our CLI script guides you in running the choas engineering tool including the basic setup of the cert-manager in your system
+
+Allowed Commands:
+1. To setup the cert-manager in your system
+```sh
+chaos setup
+```
+This command installs the basoc setup in your local system to support running our project. It setsup a kind clsuter, installs cert-manager, sets up an ingress, runs the deployment.yaml, service.yaml and ingress.yaml files, to get the pods running for the aplication. It also sets up the custom issuer, that runs our scenarios.
+To set up the custom issuer, it runs the following commands internally, deploying all the required dependencies mentioned in requirements.txt
+make generate manifests
+go mod tidy
+make install
+make deploy
+make run &> output.log &
+Finally the namespace is created and the whole environment setup is complete in your local system
+
+2. Installing the custom issuer
+```sh
+chaos deploy issuer -sleep <sleep_amount>
+```
+This command helps in installing the custom issuer in your local system. It first provides the user with namespaces availbale to choose from, to decide where to install the issuer. Once the namspace is chosen, the issuer is deployed and it shows the issuers running in user's system
+
+3. Installing the certificate
+```sh
+chaos deploy cert <name> <duration> <renewbefore>
+```
+This command helps in deploying a certificate in user's local system. It first provides the user with namespaces availbale to choose from, to decide where to deploy the certificate. Once the namspace is chosen, the certificate is created and that is shown in the console logs`
+
+4. To show the issued certificates
+```sh
+chaos show cert
+```
+This command shows all the certificates deployed in the chosen namespace. It first asks the user to choose from the existing namespaces to show all the certificates from that namespace
+
+5. To get the report
+```sh
+chaos get report
+```
+This command stores the report (logs while running end to end script)into output.log file. 
+
+6. To terminate the running project
+```sh
+chaos terminate
+```
+This command terminates all the processes running for this project and frees up the ip ports used during this deployment. It shows all the available clusters to the user to choose from. Once the cluster is chosen, it os deleted and the other processes are terminated permanently
 
 # Test It Out Manually #
 0. Open a Terminal, and make sure your CRDs are compiled properly before installing them:
