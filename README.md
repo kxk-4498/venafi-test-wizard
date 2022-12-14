@@ -4,7 +4,7 @@ Testing tool for cert-manager in Kubernetes.
 ## Description
 The vision for this project is to be the standard open-source testing tool for cert-manager deployments adopted by the Kubernetes community.
 
-Please refer to [Chaos Wiki](https://github.com/kxk-4498/Venafi-test-wizard/wiki) for further information.
+Please go to [Chaos Issuer Wiki](https://github.com/kxk-4498/Venafi-test-wizard/wiki) for further information.
 
 
 ## Getting Started
