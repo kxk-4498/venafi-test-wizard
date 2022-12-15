@@ -122,10 +122,10 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	// ChaosIssuer does not support online signing of CA certificate at this time
-	if cr.Spec.IsCA {
-		log.Info("Chaos issuer does not support online signing of CA certificates")
-		return ctrl.Result{}, nil
-	}
+	//if cr.Spec.IsCA {
+	//	log.Info("Chaos issuer does not support online signing of CA certificates")
+	//	return ctrl.Result{}, nil
+	//}
 
 	//##############################################################
 	//#######################ISSUER-LOGIC###########################
