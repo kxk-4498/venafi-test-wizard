@@ -1,11 +1,12 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: my-cert
+  name: mark1
 spec:
+  isCA: true
   commonName: certificate-by-chaos-issuer.chaos.ch
   secretName: certificate-by-chaos-issuer
-  duration: 10m
+  duration: 4m
   renewBefore: 2m
   dnsNames:
     - example.chaos.test
