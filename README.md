@@ -1,4 +1,6 @@
 # venafi-test-wizard
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkxk-4498%2FVenafi-test-wizard.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkxk-4498%2FVenafi-test-wizard?ref=badge_shield)
+
 Testing tool for cert-manager in Kubernetes.
 
 ## Description
@@ -251,3 +253,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkxk-4498%2FVenafi-test-wizard.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkxk-4498%2FVenafi-test-wizard?ref=badge_large)
