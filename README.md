@@ -130,10 +130,6 @@ func ValidateDuration(crt *internalcmapi.CertificateSpec, fldPath *field.Path) f
  ```
 **Note:** Running cert-manager locally takes 3-5 minutes to successfully deploy.
 
-7. Deploy cert-manager CRDs
-```sh
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.crds.yaml
-```
 
 # Test It Out using Script #
 **NOTE:** Make sure you enable kubectl to port forward for ports 80 & 443 by (For more info: [stackoverflow](https://stackoverflow.com/questions/53775328/kubernetes-port-forwarding-error-listen-tcp4-127-0-0-188-bind-permission-de)):
@@ -195,11 +191,8 @@ go mod tidy
 kind create cluster --name sample-test
 ```
 
-2. Install Cert-Manager into the cluster:
+2. Install Cert-Manager into the cluster
 
-```sh
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.yaml
-```
 
 3. Open a new Terminal, Install the CRDs into the cluster:
 
