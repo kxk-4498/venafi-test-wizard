@@ -6,11 +6,11 @@ How chaos scenarios will work is that the developer will provide the parameters 
 apiVersion: self-signed-issuer.chaos.ch/v1alpha1
 kind: ChaosIssuer
 metadata:
-  name: chaosissuer-scenario3
+  name: chaosissuer-scenario
 spec:
   selfSigned: {}
-  Scenario3:
-    duration: 10
+  Scenarios:
+    sleepDuration: "10"
 ```
 Now everytime, the issuer signs the certificate, it'll sleep for 10 seconds before signing it. the delay will be logged as well for getting metrics.
 **NOTE:** chaos show metrics is under progress and not available in PROD yet.
