@@ -1,4 +1,12 @@
 # venafi-test-wizard
+---
+<!-- markdown-link-check-disable -->
+[![LICENSE](https://img.shields.io/github/license/pingcap/chaos-mesh.svg)](https://github.com/kxk-4498/Venafi-test-wizard/blob/main/LICENSE)
+[![Language](https://img.shields.io/badge/Language-Go-blue.svg)](https://golang.org/)
+[![Go Report Card](https://goreportcard.com/badge/github.com/chaos-mesh/chaos-mesh)](https://goreportcard.com/report/github.com/kxk-4498/Venafi-test-wizard)
+[![CodeQL](https://github.com/guilhem/freeipa-issuer/workflows/CodeQL/badge.svg)](https://github.com/kxk-4498/Venafi-test-wizard/actions?query=workflow%3ACodeQL)
+![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkxk-4498%2FVenafi-test-wizard.svg?type=small)
+<!-- markdown-link-check-enable -->
 Testing tool for cert-manager in Kubernetes.
 
 ## Description
@@ -235,6 +243,10 @@ make manifests
 **NOTE:** Run `make --help` for more information on all potential `make` targets
 
 More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
+
+## Contribute ##
+
+check out [EXTERNAL PULL REQUEST](https://github.com/kxk-4498/Venafi-test-wizard/blob/main/.github/workflows/PULL_REQUEST_TEMPLATE) on how to submit a pull request to this project.
 
 ## License  ##
 
