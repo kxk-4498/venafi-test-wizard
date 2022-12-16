@@ -129,6 +129,14 @@ func ValidateDuration(crt *internalcmapi.CertificateSpec, fldPath *field.Path) f
  ```
 **Note:** Running cert-manager locally takes 3-5 minutes to successfully deploy.
 
+---
+After configuring cert-manager, the environment folder containing cert-manager and our venafi-chaos-issuer repo should look like:
+```
+├── _Your Main Folder
+│   ├── cert-manager repository
+│   └── venafi-chaos-issuer repository
+```
+---
 
 # Test It Out using Script #
 **NOTE:** Make sure you enable kubectl to port forward for ports 80 & 443 by (For more info: [stackoverflow](https://stackoverflow.com/questions/53775328/kubernetes-port-forwarding-error-listen-tcp4-127-0-0-188-bind-permission-de)):
