@@ -1,4 +1,5 @@
 # venafi-test-wizard
+---
 <!-- markdown-link-check-disable -->
 [![LICENSE](https://img.shields.io/github/license/pingcap/chaos-mesh.svg)](https://github.com/kxk-4498/Venafi-test-wizard/blob/main/LICENSE)
 [![Language](https://img.shields.io/badge/Language-Go-blue.svg)](https://golang.org/)
@@ -190,8 +191,11 @@ go mod tidy
 kind create cluster --name sample-test
 ```
 
-2. Install Cert-Manager into the cluster
+2. Install Cert-Manager into the cluster:
 
+```sh
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.yaml 
+```
 
 3. Open a new Terminal, Install the CRDs into the cluster:
 
