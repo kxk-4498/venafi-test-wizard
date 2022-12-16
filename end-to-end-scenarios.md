@@ -1,18 +1,4 @@
 # Sequence Diagram for end to end scenarios #
-## What has been done so far: ##
-
-The team developed a configurable Chaos Issuer where chaotic scenarios and their parameters can be given inside the yaml file of the issuer or given as an command in the chaos issuer CLI. The Chaos Issuer will then sign the certificate based on the chaotic scenario it is deployed with.
-
-## Question: ##
-Jing - "I see a clear separation from the target which is the system/cluster that’s been tested and the chaos test tool which is the software a QA or a Reliability engineer uses to test the robustness and resilience of the target. 
-
-What do you think you are building? the target or the tool or both or neither? Who will be using your software? a developer, a reliability engineer or some others?".
-
-## Our solution and approach to the question: ##
-
-The team saw that the end-to-end component was incomplete and we are proposing the below solution to resolve this.
-
-End Scenario script - End Scenario script contains commands for every chaotic scenario to reach its end state. It gets triggered by Chaos Issuer getting deployed with chaotic scenario flags. Only After some conditions are met such as waiting for the Chaos Issuer to sign a certificate, the script launches the set of commands to cause chaos and reach an end state and simultaneously pull logs and make a report of the whole scenario which can be shown to developer later on.
 
 ## An example of end-to-end scenarios: ##
 1. Launch the base scenario working with our Chaos Issuer with all the chaotic scenario flags turned off and issue a certificate which can be used by the application. Say for example, a certificate with duration of 1 hour and a renewal time of 30 mins.

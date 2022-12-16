@@ -20,6 +20,7 @@ You will need the following command line tools installed on your PATH:
 * [Kubectl v1.11.3+](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 * [Kubebuilder v2.3.1+](https://book.kubebuilder.io/quick-start.html#installation)
 * [Kustomize v3.8.1+](https://kustomize.io/)
+* [lolcat](https://github.com/busyloop/lolcat)
 
 You may also want to read: the [Kubebuilder Book](https://book.kubebuilder.io/) and the [cert-manager Concepts Documentation](https://cert-manager.io/docs/concepts/) for further background
 information.
@@ -127,6 +128,14 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 ```
 
 # Test It Out using Script #
+**NOTE:** Make sure you enable kubectl to port forward for ports 80 & 443 by (For more info: [stackoverflow](https://stackoverflow.com/questions/53775328/kubernetes-port-forwarding-error-listen-tcp4-127-0-0-188-bind-permission-de)):
+```
+sudo setcap CAP_NET_BIND_SERVICE=+eip /usr/bin/kubectl (or /usr/local/bin/kubectl. Depends on where it is installed)
+```
+Incase of line ending problems if using on Mac or WSL2:
+```
+sed -i -e 's/\r$//' chaos_script.sh
+```
 0. Run the script
 
 ```sh
